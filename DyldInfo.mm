@@ -52,11 +52,11 @@ using namespace std;
 @end
 
 
-//============================================================================
+//=========================================================================
 @implementation MachOLayout (DyldInfo)
 
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (void)rebaseAddress:(uint64_t)address
                  type:(uint32_t)type
                  node:(MVNode *)node
@@ -75,7 +75,7 @@ using namespace std;
                          :@""];
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createRebaseNode:(MVNode *)parent
                      caption:(NSString *)caption
                     location:(uint32_t)location
@@ -301,13 +301,13 @@ using namespace std;
 }
 
 
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
+//-------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 
 
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (void)bindAddress:(uint64_t)address
                type:(uint32_t)type
          symbolName:(NSString *)symbolName
@@ -381,19 +381,19 @@ using namespace std;
         relocValue = [symbolIndex longLongValue];
       }
 
-      // update real data
+      // update real data:
       relocValue += addend;
       [dataController.realData replaceBytesInRange:NSMakeRange(relocLocation, ptrSize) withBytes:&relocValue];
 
-      /*
+#ifdef DEBUG
         NSLog(@"%0xqX --> %0xqX",
               ([self is64bit] == NO ? [self fileOffsetToRVA:relocLocation] : [self fileOffsetToRVA64:relocLocation]),
               relocValue);
-       */
+#endif /* DEBUG */
     }
   }
 }
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 
 - (MVNode *)createBindingNode:(MVNode *)parent
                       caption:(NSString *)caption
@@ -718,7 +718,7 @@ using namespace std;
 
   return node;
 }
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 
 - (void)exportSymbol:(uint64_t)address
           symbolName:(NSString *)symbolName
@@ -726,29 +726,27 @@ using namespace std;
                 node:(MVNode *)node
             location:(uint32_t)location
 {
-  //uint64_t address = [self is64bit] == NO ? [self fileOffsetToRVA:offset] : [self fileOffsetToRVA64:offset];
+#if 0
+  uint64_t address = (([self is64bit] == NO) ? [self fileOffsetToRVA:offset] : [self fileOffsetToRVA64:offset]);
+#endif /* 0 */
 
   NSString * descStr = [NSString stringWithFormat:@"%@ 0x%qX",
-                        [self is64bit] == NO ? [self findSectionContainsRVA:address] : [self findSectionContainsRVA64:address],
+                        (([self is64bit] == NO) ? [self findSectionContainsRVA:(uint32_t)address] : [self findSectionContainsRVA64:address]),
                         address];
 
-  if ((flags & EXPORT_SYMBOL_FLAGS_KIND_MASK) == EXPORT_SYMBOL_FLAGS_KIND_THREAD_LOCAL)
-  {
+  if ((flags & EXPORT_SYMBOL_FLAGS_KIND_MASK) == EXPORT_SYMBOL_FLAGS_KIND_THREAD_LOCAL) {
     descStr = [descStr stringByAppendingString:@" [thread-local]"];
   }
 
-  if (flags & EXPORT_SYMBOL_FLAGS_WEAK_DEFINITION)
-  {
+  if (flags & EXPORT_SYMBOL_FLAGS_WEAK_DEFINITION) {
     descStr = [descStr stringByAppendingString:@" [weak-def]"];
   }
 
-  if (flags & EXPORT_SYMBOL_FLAGS_REEXPORT)
-  {
+  if (flags & EXPORT_SYMBOL_FLAGS_REEXPORT) {
     descStr = [descStr stringByAppendingString:@" [reexport]"];
   }
 
-  if (flags & EXPORT_SYMBOL_FLAGS_STUB_AND_RESOLVER)
-  {
+  if (flags & EXPORT_SYMBOL_FLAGS_STUB_AND_RESOLVER) {
     descStr = [descStr stringByAppendingString:@" [stub & resolver]"];
   }
 
@@ -760,7 +758,7 @@ using namespace std;
 
   [node.details setAttributes:MVMetaDataAttributeName,symbolName,nil];
 }
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 
 - (void)printSymbols:(NSString *)prefix
             location:(uint32_t)location
@@ -770,42 +768,51 @@ using namespace std;
          baseAddress:(uint64_t)baseAddress
       exportLocation:(uint32_t &)exportLocation
 {
-  NSRange range = NSMakeRange(location + skip,0);
+  NSRange range = NSMakeRange((location + skip), 0);
   NSString * lastReadHex;
 
   uint8_t terminalSize = [self read_uint8:range lastReadHex:&lastReadHex];
-  [node.details insertRowWithOffset:range.location
+  [node.details insertRowWithOffset:(uint32_t)range.location
                                    :[NSString stringWithFormat:@"%.8lX", range.location]
                                    :lastReadHex
                                    :@"Terminal Size"
                                    :[NSString stringWithFormat:@"%u",((uint32_t)-1 & terminalSize)]];
 
-  if (terminalSize != 0)
-  {
-    uint32_t terminalLocation = NSMaxRange(range);
+  if (terminalSize != 0U) {
+    uint32_t terminalLocation = (uint32_t)NSMaxRange(range);
 
     uint64_t flags = [self read_uleb128:range lastReadHex:&lastReadHex];
-    [node.details insertRowWithOffset:range.location
+    [node.details insertRowWithOffset:(uint32_t)range.location
                                      :[NSString stringWithFormat:@"%.8lX", range.location]
                                      :lastReadHex
                                      :@"Flags"
                                      :@""];
 
-    if ((flags & EXPORT_SYMBOL_FLAGS_KIND_MASK) == EXPORT_SYMBOL_FLAGS_KIND_REGULAR)      [node.details insertRowWithOffset:range.location:@"":@"":@"00":@"EXPORT_SYMBOL_FLAGS_KIND_REGULAR"];
-    if ((flags & EXPORT_SYMBOL_FLAGS_KIND_MASK) == EXPORT_SYMBOL_FLAGS_KIND_THREAD_LOCAL) [node.details insertRowWithOffset:range.location:@"":@"":@"01":@"EXPORT_SYMBOL_FLAGS_KIND_THREAD_LOCAL"];
-    if (flags & EXPORT_SYMBOL_FLAGS_WEAK_DEFINITION)                                      [node.details insertRowWithOffset:range.location:@"":@"":@"04":@"EXPORT_SYMBOL_FLAGS_WEAK_DEFINITION"];
-    if (flags & EXPORT_SYMBOL_FLAGS_REEXPORT)                                             [node.details insertRowWithOffset:range.location:@"":@"":@"08":@"EXPORT_SYMBOL_FLAGS_REEXPORT"];
-    if (flags & EXPORT_SYMBOL_FLAGS_STUB_AND_RESOLVER)                                    [node.details insertRowWithOffset:range.location:@"":@"":@"10":@"EXPORT_SYMBOL_FLAGS_STUB_AND_RESOLVER"];
+    if ((flags & EXPORT_SYMBOL_FLAGS_KIND_MASK) == EXPORT_SYMBOL_FLAGS_KIND_REGULAR) {
+      [node.details insertRowWithOffset:(uint32_t)range.location:@"":@"":@"00":@"EXPORT_SYMBOL_FLAGS_KIND_REGULAR"];
+    }
+    if ((flags & EXPORT_SYMBOL_FLAGS_KIND_MASK) == EXPORT_SYMBOL_FLAGS_KIND_THREAD_LOCAL) {
+      [node.details insertRowWithOffset:(uint32_t)range.location:@"":@"":@"01":@"EXPORT_SYMBOL_FLAGS_KIND_THREAD_LOCAL"];
+    }
+    if (flags & EXPORT_SYMBOL_FLAGS_WEAK_DEFINITION) {
+      [node.details insertRowWithOffset:(uint32_t)range.location:@"":@"":@"04":@"EXPORT_SYMBOL_FLAGS_WEAK_DEFINITION"];
+    }
+    if (flags & EXPORT_SYMBOL_FLAGS_REEXPORT) {
+      [node.details insertRowWithOffset:(uint32_t)range.location:@"":@"":@"08":@"EXPORT_SYMBOL_FLAGS_REEXPORT"];
+    }
+    if (flags & EXPORT_SYMBOL_FLAGS_STUB_AND_RESOLVER) {
+      [node.details insertRowWithOffset:(uint32_t)range.location:@"":@"":@"10":@"EXPORT_SYMBOL_FLAGS_STUB_AND_RESOLVER"];
+    }
 
     uint64_t offset = [self read_uleb128:range lastReadHex:&lastReadHex];
-    [node.details insertRowWithOffset:range.location
+    [node.details insertRowWithOffset:(uint32_t)range.location
                                      :[NSString stringWithFormat:@"%.8lX", range.location]
                                      :lastReadHex
                                      :@"Symbol Offset"
                                      :[NSString stringWithFormat:@"0x%qX",offset]];
 
     //=================================================================
-    [self exportSymbol:baseAddress + offset
+    [self exportSymbol:(baseAddress + offset)
             symbolName:prefix
                  flags:flags
                   node:actionNode
@@ -816,54 +823,51 @@ using namespace std;
   }
 
   uint8_t childCount = [self read_uint8:range lastReadHex:&lastReadHex];
-  [node.details insertRowWithOffset:range.location
+  [node.details insertRowWithOffset:(uint32_t)range.location
                                    :[NSString stringWithFormat:@"%.8lX", range.location]
                                    :lastReadHex
                                    :@"Child Count"
                                    :[NSString stringWithFormat:@"%u",((uint32_t)-1 & childCount)]];
 
-  if (childCount == 0)
-  {
-    // separate export nodes
+  if (childCount == 0U) {
+    // separate export nodes:
     [node.details setAttributes:MVUnderlineAttributeName,@"YES",nil];
   }
 
-  while (childCount-- > 0)
-  {
-    exportLocation = NSMaxRange(range);
+  while (childCount-- > 0U) {
+    exportLocation = (uint32_t)NSMaxRange(range);
 
     NSString * label = [self read_string:range lastReadHex:&lastReadHex];
-    [node.details insertRowWithOffset:range.location
+    [node.details insertRowWithOffset:(uint32_t)range.location
                                      :[NSString stringWithFormat:@"%.8lX", range.location]
                                      :lastReadHex
                                      :@"Node Label"
                                      :[NSString stringWithFormat:@"\"%@\"",label]];
 
     uint64_t skip = [self read_uleb128:range lastReadHex:&lastReadHex];
-    [node.details insertRowWithOffset:range.location
+    [node.details insertRowWithOffset:(uint32_t)range.location
                                      :[NSString stringWithFormat:@"%.8lX", range.location]
                                      :lastReadHex
                                      :@"Next Node"
-                                     :[self is64bit] == NO
-                                        ? [NSString stringWithFormat:@"0x%X",[self fileOffsetToRVA:location + skip]]
-                                        : [NSString stringWithFormat:@"0x%qX",[self fileOffsetToRVA64:location + skip]]];
+                                     :(([self is64bit] == NO)
+                                        ? [NSString stringWithFormat:@"0x%X",[self fileOffsetToRVA:(uint32_t)(location + skip)]]
+                                        : [NSString stringWithFormat:@"0x%qX",[self fileOffsetToRVA64:(uint32_t)(location + skip)]])];
 
-    if (childCount == 0)
-    {
-      // separate export nodes
+    if (childCount == 0U) {
+      // separate export nodes:
       [node.details setAttributes:MVUnderlineAttributeName,@"YES",nil];
     }
 
     [self printSymbols:[NSString stringWithFormat:@"%@%@", prefix, label]
               location:location
-             skipBytes:skip
+             skipBytes:(uint32_t)skip
                   node:node
             actionNode:actionNode
            baseAddress:baseAddress
         exportLocation:exportLocation];
   }
 }
-//-----------------------------------------------------------------------------
+
 
 - (MVNode *)createExportNode:(MVNode *)parent
                      caption:(NSString *)caption
@@ -899,6 +903,6 @@ using namespace std;
 
   return node;
 }
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 
 @end

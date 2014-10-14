@@ -144,7 +144,7 @@ using namespace std;
 ((format & 0xf) == DW_EH_PE_uleb128 || (format & 0xf) == DW_EH_PE_sleb128) ? 0 : \
 ([self is64bit] == NO) ? sizeof(uint32_t) : sizeof(uint64_t)
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 #define READ_USE_ENCODING(format,range,hexstr) \
   ((format & 0xf) == DW_EH_PE_udata2 || (format & 0xf) == DW_EH_PE_sdata2) ? [self read_uint16:range lastReadHex:&hexstr] : \
   ((format & 0xf) == DW_EH_PE_udata4 || (format & 0xf) == DW_EH_PE_sdata4) ? [self read_uint32:range lastReadHex:&hexstr] : \
@@ -153,7 +153,7 @@ using namespace std;
   (format & 0xf) == DW_EH_PE_sleb128 ? [self read_sleb128:range lastReadHex:&hexstr] : \
   ([self is64bit] == NO) ? [self read_uint32:range lastReadHex:&hexstr] : [self read_uint64:range lastReadHex:&hexstr]
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (NSString *)guessSymbolUsingEncoding:(uint8_t)format atOffset:(uint32_t)offset withValue:(uint32_t &)value
 {
   NSParameterAssert([self is64bit] == NO);
@@ -175,7 +175,7 @@ using namespace std;
   return symbolName;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (NSString *)guessSymbol64UsingEncoding:(uint8_t)format atOffset:(uint32_t)offset withValue:(uint64_t &)value
 {
   NSParameterAssert([self is64bit] == YES);
@@ -203,9 +203,9 @@ using namespace std;
   return symbolName;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 // Call Frame Information
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createCFINode:(MVNode *)parent
                 caption:(NSString *)caption
                location:(uint32_t)location
@@ -499,9 +499,9 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 //                     Language Specific Data Area
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 /*  #header
  *  .byte       @LPStart format     (usually <omit>)
  *  .byte       @TType format       (usually <omit>, <absolute> or <indirect pcrel sdata4>)
@@ -735,9 +735,9 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 //    !!!!!! DISCONTINUED !!!!! (not mandatory, can be ommited)
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createUnwindInfoHeaderNode:(MVNode *)parent
                                caption:(NSString *)caption
                               location:(uint32_t)location

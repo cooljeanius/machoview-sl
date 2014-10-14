@@ -13,7 +13,7 @@
 //============================================================================
 @implementation MVLayout (ReadWrite)
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (uint8_t)read_uint8:(NSRange &)range lastReadHex:(NSString **)lastReadHex
 {
   uint8_t buffer;
@@ -24,7 +24,7 @@
   return buffer;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (uint16_t)read_uint16:(NSRange &)range lastReadHex:(NSString **)lastReadHex
 {
   uint16_t buffer;
@@ -35,7 +35,7 @@
   return buffer;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (uint32_t)read_uint32:(NSRange &)range lastReadHex:(NSString **)lastReadHex
 {
   uint32_t buffer;
@@ -46,7 +46,7 @@
   return buffer;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (uint64_t)read_uint64:(NSRange &)range lastReadHex:(NSString **)lastReadHex
 {
   uint64_t buffer;
@@ -57,7 +57,7 @@
   return buffer;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (int8_t)read_int8:(NSRange &)range lastReadHex:(NSString **)lastReadHex
 {
   int8_t buffer;
@@ -68,7 +68,7 @@
   return buffer;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (int16_t)read_int16:(NSRange &)range lastReadHex:(NSString **)lastReadHex
 {
   int16_t buffer;
@@ -79,7 +79,7 @@
   return buffer;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (int32_t)read_int32:(NSRange &)range lastReadHex:(NSString **)lastReadHex
 {
   int32_t buffer;
@@ -90,7 +90,7 @@
   return buffer;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (int64_t)read_int64:(NSRange &)range lastReadHex:(NSString **)lastReadHex
 {
   int64_t buffer;
@@ -101,7 +101,7 @@
   return buffer;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (NSString *)getHexStr:(NSRange &)range
 {
   NSMutableString * lastReadHex = [NSMutableString stringWithCapacity:2*range.length];
@@ -113,7 +113,7 @@
   return lastReadHex;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (NSString *) replaceEscapeCharsInString: (NSString *)orig
 {
   NSString * str = orig;
@@ -125,7 +125,7 @@
   return str;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (NSString *)read_string:(NSRange &)range lastReadHex:(NSString **)lastReadHex
 {
   range.location = NSMaxRange(range);
@@ -135,7 +135,7 @@
   return [self replaceEscapeCharsInString:str];
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (NSString *)read_string:(NSRange &)range fixlen:(NSUInteger)len lastReadHex:(NSString **)lastReadHex
 {
   range = NSMakeRange(NSMaxRange(range),len);
@@ -147,7 +147,7 @@
   return [self replaceEscapeCharsInString:str];
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (NSData *)read_bytes:(NSRange &)range length:(NSUInteger)length lastReadHex:(NSString **)lastReadHex
 {
   range = NSMakeRange(NSMaxRange(range),length);
@@ -159,7 +159,7 @@
   return ret;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (int64_t)read_sleb128:(NSRange &)range lastReadHex:(NSString **)lastReadHex
 {
   range.location = NSMaxRange(range);

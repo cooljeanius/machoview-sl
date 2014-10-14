@@ -21,15 +21,15 @@ using namespace std;
 //============================================================================
 @implementation MachOLayout (SectionContents)
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createPointersNode:(MVNode *)parent
                        caption:(NSString *)caption
                       location:(uint32_t)location
                         length:(uint32_t)length
 {
   MVNodeSaver nodeSaver;
-  MVNode * node = [parent insertChildWithDetails:caption location:location length:length saver:nodeSaver]; 
-  
+  MVNode * node = [parent insertChildWithDetails:caption location:location length:length saver:nodeSaver];
+
   NSRange range = NSMakeRange(location,0);
   NSString * lastReadHex;
 
@@ -39,30 +39,30 @@ using namespace std;
     NSString * symbolName = [NSString stringWithFormat:@"%@->%@",
                              [self findSymbolAtRVA:[self fileOffsetToRVA:range.location]],
                              [self findSymbolAtRVA:ptr]];
-    
+
     [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
                            :lastReadHex
                            :@"Pointer"
                            :symbolName];
-    
+
     [node.details setAttributes:MVMetaDataAttributeName,symbolName,nil];
-    
-    [symbolNames setObject:symbolName 
+
+    [symbolNames setObject:symbolName
                     forKey:[NSNumber numberWithUnsignedLong:[self fileOffsetToRVA:range.location]]];
   }
-  
+
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createPointers64Node:(MVNode *)parent
                          caption:(NSString *)caption
                         location:(uint32_t)location
                           length:(uint32_t)length
 {
   MVNodeSaver nodeSaver;
-  MVNode * node = [parent insertChildWithDetails:caption location:location length:length saver:nodeSaver]; 
-  
+  MVNode * node = [parent insertChildWithDetails:caption location:location length:length saver:nodeSaver];
+
   NSRange range = NSMakeRange(location,0);
   NSString * lastReadHex;
 
@@ -72,44 +72,44 @@ using namespace std;
     NSString * symbolName = [NSString stringWithFormat:@"%@->%@",
                              [self findSymbolAtRVA64:[self fileOffsetToRVA64:range.location]],
                              [self findSymbolAtRVA64:ptr]];
-    
+
     [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
                            :lastReadHex
                            :@"Pointer"
                            :symbolName];
-    
+
     [node.details setAttributes:MVMetaDataAttributeName,symbolName,nil];
-    
-    [symbolNames setObject:symbolName 
+
+    [symbolNames setObject:symbolName
                     forKey:[NSNumber numberWithUnsignedLongLong:[self fileOffsetToRVA64:range.location]]];
   }
-  
+
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(MVNode *)createCStringsNode:(MVNode *)parent
                       caption:(NSString *)caption
                      location:(uint32_t)location
                        length:(uint32_t)length
 {
   MVNodeSaver nodeSaver;
-  MVNode * node = [parent insertChildWithDetails:caption location:location length:length saver:nodeSaver]; 
-  
+  MVNode * node = [parent insertChildWithDetails:caption location:location length:length saver:nodeSaver];
+
   NSRange range = NSMakeRange(location,0);
   NSString * lastReadHex;
 
   while (NSMaxRange(range) < location + length)
   {
     NSString * symbolName = [self read_string:range lastReadHex:&lastReadHex];
-    
+
     [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
                            :lastReadHex
                            :[NSString stringWithFormat:@"CString (length:%lu)", [symbolName length]]
                            :symbolName];
-    
+
     [node.details setAttributes:MVMetaDataAttributeName,symbolName,nil];
-    
+
     // fill in lookup table with C Strings
     if ([self is64bit] == NO)
     {
@@ -124,11 +124,11 @@ using namespace std;
                       forKey:[NSNumber numberWithUnsignedLongLong:rva64]];
     }
   }
-  
+
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(MVNode *)createLiteralsNode:(MVNode *)parent
                       caption:(NSString *)caption
                      location:(uint32_t)location
@@ -136,8 +136,8 @@ using namespace std;
                        stride:(uint32_t)stride
 {
   MVNodeSaver nodeSaver;
-  MVNode * node = [parent insertChildWithDetails:caption location:location length:length saver:nodeSaver]; 
-  
+  MVNode * node = [parent insertChildWithDetails:caption location:location length:length saver:nodeSaver];
+
   NSRange range = NSMakeRange(location,0);
   NSString * lastReadHex;
 
@@ -148,58 +148,58 @@ using namespace std;
     NSString * literalStr;
     switch (stride)
     {
-      case sizeof(float): 
+      case sizeof(float):
       {
         double num = *(float *)[data bytes];
         literalStr = [NSString stringWithFormat:@"%.16g", num];
       } break;
-      
-      case sizeof(double): 
+
+      case sizeof(double):
       {
-        double num = *(double *)[data bytes]; 
+        double num = *(double *)[data bytes];
         literalStr = [NSString stringWithFormat:@"%.16g", num];
       } break;
-        
+
       default:
-      case sizeof(long double): 
+      case sizeof(long double):
       {
-        long double num = *(long double *)[data bytes]; 
+        long double num = *(long double *)[data bytes];
         literalStr = [NSString stringWithFormat:@"%.16Lg", num];
       } break;
     }
-    
+
     [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
                            :lastReadHex
                            :@"Floating Point Number"
                            :literalStr];
-    
+
     // fill in lookup table with string literals
     if ([self is64bit] == NO)
     {
       uint32_t rva = [self fileOffsetToRVA:range.location];
       [symbolNames setObject:[NSString stringWithFormat:@"0x%X:%@f", rva, literalStr]
-                      forKey:[NSNumber numberWithUnsignedLong:rva]]; 
+                      forKey:[NSNumber numberWithUnsignedLong:rva]];
     }
     else
     {
       uint64_t rva64 = [self fileOffsetToRVA64:range.location];
       [symbolNames setObject:[NSString stringWithFormat:@"0x%qX:%@f", rva64, literalStr]
-                      forKey:[NSNumber numberWithUnsignedLongLong:rva64]]; 
+                      forKey:[NSNumber numberWithUnsignedLongLong:rva64]];
     }
   }
   return node;
-  
+
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createIndPointersNode:(MVNode *)parent
                           caption:(NSString *)caption
                          location:(uint32_t)location
                            length:(uint32_t)length
 {
   MVNodeSaver nodeSaver;
-  MVNode * node = [parent insertChildWithDetails:caption location:location length:length saver:nodeSaver]; 
-  
+  MVNode * node = [parent insertChildWithDetails:caption location:location length:length saver:nodeSaver];
+
   NSRange range = NSMakeRange(location,0);
   NSString * lastReadHex;
 
@@ -211,22 +211,22 @@ using namespace std;
                            :lastReadHex
                            :@"Indirect Pointer"
                            :symbolName];
-    
+
     [node.details setAttributes:MVMetaDataAttributeName,symbolName,nil];
   }
-  
+
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createIndPointers64Node:(MVNode *)parent
                             caption:(NSString *)caption
                            location:(uint32_t)location
                              length:(uint32_t)length
 {
   MVNodeSaver nodeSaver;
-  MVNode * node = [parent insertChildWithDetails:caption location:location length:length saver:nodeSaver]; 
-  
+  MVNode * node = [parent insertChildWithDetails:caption location:location length:length saver:nodeSaver];
+
   NSRange range = NSMakeRange(location,0);
   NSString * lastReadHex;
 
@@ -238,14 +238,14 @@ using namespace std;
                            :lastReadHex
                            :@"Indirect Pointer"
                            :symbolName];
-    
+
     [node.details setAttributes:MVMetaDataAttributeName,symbolName,nil];
   }
-  
+
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createIndStubsNode:(MVNode *)parent
                        caption:(NSString *)caption
                       location:(uint32_t)location
@@ -253,8 +253,8 @@ using namespace std;
                         stride:(uint32_t)stride
 {
   MVNodeSaver nodeSaver;
-  MVNode * node = [parent insertChildWithDetails:caption location:location length:length saver:nodeSaver]; 
-  
+  MVNode * node = [parent insertChildWithDetails:caption location:location length:length saver:nodeSaver];
+
   NSRange range = NSMakeRange(location,0);
   NSString * lastReadHex;
 
@@ -266,14 +266,14 @@ using namespace std;
                            :lastReadHex
                            :@"Indirect Stub"
                            :symbolName];
-    
+
     [node.details setAttributes:MVMetaDataAttributeName,symbolName,nil];
   }
-  
+
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createIndStubs64Node:(MVNode *)parent
                          caption:(NSString *)caption
                         location:(uint32_t)location
@@ -281,8 +281,8 @@ using namespace std;
                           stride:(uint32_t)stride
 {
   MVNodeSaver nodeSaver;
-  MVNode * node = [parent insertChildWithDetails:caption location:location length:length saver:nodeSaver]; 
-  
+  MVNode * node = [parent insertChildWithDetails:caption location:location length:length saver:nodeSaver];
+
   NSRange range = NSMakeRange(location,0);
   NSString * lastReadHex;
 
@@ -294,10 +294,10 @@ using namespace std;
                            :lastReadHex
                            :@"Indirect Stub"
                            :symbolName];
-    
+
     [node.details setAttributes:MVMetaDataAttributeName,symbolName,nil];
   }
-  
+
   return node;
 }
 
@@ -414,7 +414,7 @@ static AsmFootPrint const fastStubHelperHelperARM =
 };
 
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 // __stub_helper:
 //
 //  StubHelperHelper
@@ -425,23 +425,23 @@ static AsmFootPrint const fastStubHelperHelperARM =
 // __symbol_stub1:
 //  FF 25 <relative to indirect>
 //  ...
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createStubHelperNode:(MVNode *)parent
                          caption:(NSString *)caption
                         location:(uint32_t)location
                           length:(uint32_t)length
 {
   MVNodeSaver nodeSaver;
-  MVNode * node = [parent insertChildWithDetails:caption location:location length:length saver:nodeSaver]; 
-  
+  MVNode * node = [parent insertChildWithDetails:caption location:location length:length saver:nodeSaver];
+
   NSRange range = NSMakeRange(location,0);
   NSString * lastReadHex;
-  
+
   NSData * data;
   uint32_t address;
 
-  if ([self matchAsmAtOffset:range.location 
-                asmFootPrint:hybridStubHelperHelperX86 
+  if ([self matchAsmAtOffset:range.location
+                asmFootPrint:hybridStubHelperHelperX86
                    lineCount:sizeof(hybridStubHelperHelperX86)/FOOTPRINT_STRIDE])
   {
     data = [self read_bytes:range length:7 lastReadHex:&lastReadHex];
@@ -501,12 +501,12 @@ static AsmFootPrint const fastStubHelperHelperARM =
                            :lastReadHex
                            :@"jmp  *_fast_lazy_bind(%rip)"
                            :[self findSymbolAtRVA:address]];
-    
+
     [node.details setAttributes:MVUnderlineAttributeName,@"YES",nil];
-    
+
   }
-  else if ([self matchAsmAtOffset:range.location 
-                     asmFootPrint:fastStubHelperHelperX86 
+  else if ([self matchAsmAtOffset:range.location
+                     asmFootPrint:fastStubHelperHelperX86
                         lineCount:sizeof(fastStubHelperHelperX86)/FOOTPRINT_STRIDE])
   {
     data = [self read_bytes:range length:5 lastReadHex:&lastReadHex];
@@ -515,7 +515,7 @@ static AsmFootPrint const fastStubHelperHelperARM =
                            :lastReadHex
                            :@"pushl  imageloadercache"
                            :[self findSymbolAtRVA:address]];
-    
+
     data = [self read_bytes:range length:6 lastReadHex:&lastReadHex];
     address = *(uint32_t *)((uint8_t *)data.bytes + 2);
     [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
@@ -528,16 +528,16 @@ static AsmFootPrint const fastStubHelperHelperARM =
                            :lastReadHex
                            :@"nop"
                            :@""];
-    
+
     [node.details setAttributes:MVUnderlineAttributeName,@"YES",nil];
-    
+
   }
-  
+
   return node;
 }
 
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createTextNode:(MVNode *)parent
                    caption:(NSString *)caption
                   location:(uint32_t)location
@@ -546,12 +546,12 @@ static AsmFootPrint const fastStubHelperHelperARM =
                     nreloc:(uint32_t)nreloc
 {
   MVNodeSaver nodeSaver;
-  MVNode * node = [parent insertChildWithDetails:caption location:location length:length saver:nodeSaver]; 
-  
+  MVNode * node = [parent insertChildWithDetails:caption location:location length:length saver:nodeSaver];
+
   // accumulate search info
   NSUInteger bookmark = node.details.rowCount;
   NSString * symbolName = nil;
-  
+
   if (length == 0) // prevent of attempting to parse zero length sections
   {
     return node;
@@ -560,18 +560,18 @@ static AsmFootPrint const fastStubHelperHelperARM =
   // prepare disassembler params
   //===========================================================================
   MATCH_STRUCT(mach_header,imageOffset);
-  
+
   struct dysymtab_command const * dysymtab_command = NULL;
   for (CommandVector::const_iterator cmdIter = commands.begin(); cmdIter != commands.end(); ++cmdIter)
   {
     struct load_command const * load_command = (struct load_command const *)(*cmdIter);
     if (load_command->cmd == LC_DYSYMTAB)
     {
-      dysymtab_command = (struct dysymtab_command const *)load_command; 
+      dysymtab_command = (struct dysymtab_command const *)load_command;
       break;
     }
   }
-  
+
   char *                    ot_sect = (char*)[dataController.fileData bytes] + location;
   uint32_t                  ot_left = length;
   uint64_t                  ot_addr = ([self is64bit] == NO ? [self fileOffsetToRVA:location] : [self fileOffsetToRVA64:location]);
@@ -591,11 +591,11 @@ static AsmFootPrint const fastStubHelperHelperARM =
   cpu_subtype_t             ot_cpu_subtype = mach_header->cpusubtype;
   bool                      ot_verbose = true;
   bool                      ot_llvm_mc = false;
-  
+
   vector<symbol> sorted_symbols;
   set<uint64_t> thumbSymbols;
-  
-  if (mach_header->cputype == CPU_TYPE_ARM && 
+
+  if (mach_header->cputype == CPU_TYPE_ARM &&
       (mach_header->cpusubtype == CPU_SUBTYPE_ARM_V6 ||
        mach_header->cpusubtype == CPU_SUBTYPE_ARM_V7 ||
        mach_header->cpusubtype == CPU_SUBTYPE_ARM_V7F ||
@@ -606,7 +606,7 @@ static AsmFootPrint const fastStubHelperHelperARM =
     uint8_t n_type;
     uint16_t n_desc;
     uint64_t n_value;
-    
+
     if([self is64bit] == NO)
     {
       struct nlist const * nlist = symbols.at(i);
@@ -621,21 +621,21 @@ static AsmFootPrint const fastStubHelperHelperARM =
       n_desc = nlist_64->n_desc;
       n_value = nlist_64->n_value;
     }
-    
+
     if((n_type & N_TYPE) == N_SECT && (n_desc & N_ARM_THUMB_DEF))
     {
       thumbSymbols.insert(n_value);
     }
   }
-  
+
   in_thumb = (mach_header->cputype != CPU_TYPE_ARM && mach_header->cpusubtype == CPU_SUBTYPE_ARM_V7);
-  
+
   NSEnumerator * enumerator = [symbolNames keyEnumerator];
   id key;
-  while ((key = [enumerator nextObject]) != nil) 
+  while ((key = [enumerator nextObject]) != nil)
   {
     NSNumber * symbolIndex = (NSNumber *)key;
-    
+
     // skip external symbols
     if (([self is64bit] == NO && (int32_t)[symbolIndex unsignedLongValue] < 0) ||
         (int64_t)[symbolIndex unsignedLongLongValue] < 0)
@@ -647,16 +647,16 @@ static AsmFootPrint const fastStubHelperHelperARM =
     symbol.name = strdup(CSTRING([symbolNames objectForKey:key]));
     symbol.n_value = [symbolIndex unsignedLongLongValue];
     symbol.is_thumb = (thumbSymbols.find(symbol.n_value) != thumbSymbols.end());
-    
+
     sorted_symbols.push_back(symbol);
   }
-  
+
   qsort(&sorted_symbols[0], sorted_symbols.size(), sizeof(struct symbol),
         (int (*)(const void *, const void *))sym_compare);
 
   struct symbol *           ot_sorted_symbols = &sorted_symbols[0];
   uint32_t                  ot_nsorted_symbols = sorted_symbols.size();
-  
+
   struct relocation_info *  ot_sorted_relocs = (struct relocation_info *)((char *)[dataController.fileData bytes] + reloff);
   uint32_t                  ot_nsorted_relocs = nreloc;
 
@@ -669,34 +669,34 @@ static AsmFootPrint const fastStubHelperHelperARM =
     {
       break;
     }
-    
+
     // pipes makes us to run disassembling exclusively on a single thread
     [pipeCondition lock];
     while (numIOThread > 0)
     {
       [pipeCondition wait];
     }
-    
+
     int pfdout[3]; // 0:read 1:write 2:stdout
-    if (pipe (pfdout) != 0) 
+    if (pipe (pfdout) != 0)
     {
       [NSException raise:@"pipe" format:@"unable to create pipes"];
     }
-    
+
     // save standard output descriptor
     pfdout[2] = dup(STDOUT_FILENO);
-    
+
     // redirect
     close(STDOUT_FILENO);
     dup2 (pfdout[1], STDOUT_FILENO);
-  
+
     // run disassembler line by line
     setlinebuf(stdout);
-    
+
     NSUInteger nAsmLine = 0;
     do
     {
-      uint32_t parsed_bytes = 
+      uint32_t parsed_bytes =
         (mach_header->cputype != CPU_TYPE_ARM
          ? i386_disassemble(
                             ot_sect,
@@ -745,44 +745,43 @@ static AsmFootPrint const fastStubHelperHelperARM =
                            ot_verbose
                            )
        );
-        
+
       // read from pipe
       char buf[0x1000], *pbuf = buf;
       ssize_t lenbuf = read(pfdout[0], buf, sizeof(buf));
       buf[lenbuf] = '\0'; // terminate buffer
       size_t field_start_pos = 0; // start position in buffer of the current field
-      
+
       while (pbuf - buf < lenbuf)
       {
         if (*pbuf == '\n') // newline or
         {
           *pbuf = '\0'; // clear newline
-          
+
           char const * symbol_name = guess_symbol(ot_addr,
                                                   ot_sorted_symbols,
-                                                  ot_nsorted_symbols);
-          // print label if any
-          if (symbol_name)
-          {
-            // close previous block (if any)
-            if (symbolName)
-            {
+                                                  ot_nsorted_symbols,
+                                                  true);
+          // print label if any:
+          if (symbol_name) {
+            // close previous block (if any):
+            if (symbolName) {
               [node.details setAttributesFromRowIndex:bookmark:MVMetaDataAttributeName,symbolName,nil];
               [node.details setAttributes:MVUnderlineAttributeName,@"YES",nil];
             }
 
-            // start new block
+            // start new block:
             bookmark = node.details.rowCount;
             [node.details appendRow:@""
                                    :@""
                                    :[NSString stringWithFormat:@"%@:", (symbolName = NSSTRING(symbol_name))]
                                    :@""];
-                
+
             [node.details setAttributes:MVCellColorAttributeName,[NSColor orangeColor],nil];
           }
-              
-          // print one line of asm
-          uint32_t fileOffset = ([self is64bit] == NO ? [self RVAToFileOffset:(uint32_t)ot_addr] : [self RVA64ToFileOffset:ot_addr]);
+
+          // print one line of asm:
+          uint32_t fileOffset = (([self is64bit] == NO) ? [self RVAToFileOffset:(uint32_t)ot_addr] : [self RVA64ToFileOffset:ot_addr]);
           NSRange range = NSMakeRange(fileOffset,0);
           NSString * lastReadHex;
           [self read_bytes:range length:parsed_bytes lastReadHex:&lastReadHex];
@@ -790,7 +789,7 @@ static AsmFootPrint const fastStubHelperHelperARM =
                                  :lastReadHex
                                  :NSSTRING(buf)
                                  :@""];
-              
+
           break; // stop processing after the first new line
         }
         else if (*pbuf == '\t')
@@ -798,18 +797,18 @@ static AsmFootPrint const fastStubHelperHelperARM =
           // replace tabs with spaces in order to keep indention
           size_t wsn = TAB_WIDTH - ((pbuf - buf - field_start_pos) % TAB_WIDTH);
           *pbuf = ' '; // change the tab char to space
-              
+
           // shift everything after the tab char right
           for (char * p = buf + lenbuf; p > pbuf; --p)
           {
             *(p + wsn - 1) = *p;
             *p = ' ';
           }
-              
+
           // adjust pointers
           pbuf += wsn;
           lenbuf += wsn;
-              
+
           // store start position of the field for the next tab
           field_start_pos = pbuf - buf;
         }
@@ -818,29 +817,29 @@ static AsmFootPrint const fastStubHelperHelperARM =
           ++pbuf;
         }
       }
-      
+
       // synchronize disassembler
       ot_left -= parsed_bytes;
       ot_sect += parsed_bytes;
       ot_addr += parsed_bytes;
-      
+
       // inner loop forces to switch task after every 4096 lines of assembly
     } while (ot_addr < ot_sect_addr + length && (++nAsmLine % 0x1000));
 
     // close read handle
     close (pfdout[0]);
-    
+
     // close write handle
     close (pfdout[1]);
-    
+
     // restore standard outputs
     dup2 (pfdout[2], STDOUT_FILENO);
     close (pfdout[2]);
-    
+
     [pipeCondition unlock];
 
   } while (ot_addr < ot_sect_addr + length);
-  
+
   // clean up symbols
   for (vector<symbol>::iterator iter = sorted_symbols.begin();
        iter != sorted_symbols.end();
@@ -848,14 +847,14 @@ static AsmFootPrint const fastStubHelperHelperARM =
   {
     free(iter->name);
   }
-  
+
   // close last block
   if (symbolName)
   {
     [node.details setAttributesFromRowIndex:bookmark:MVMetaDataAttributeName,symbolName,nil];
     [node.details setAttributes:MVUnderlineAttributeName,@"YES",nil];
   }
-  
+
   return node;
 }
 

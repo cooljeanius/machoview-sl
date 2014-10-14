@@ -171,9 +171,12 @@
                       strtab:(char const *)strtab
 {
   MVNodeSaver nodeSaver;
-  MVNode * node = [parent insertChildWithDetails:caption location:location length:length saver:nodeSaver];
+  MVNode * node = [parent insertChildWithDetails:caption
+                                        location:location
+                                          length:length
+                                           saver:nodeSaver];
 
-  NSRange range = NSMakeRange(location,0);
+  NSRange range = NSMakeRange(location, 0);
   NSString * lastReadHex;
 
   uint32_t size = [self read_uint32:range lastReadHex:&lastReadHex];
@@ -187,8 +190,7 @@
 
   node.dataRange = NSMakeRange(location, size);
 
-  while (size > 0)
-  {
+  while (size > 0U) {
     uint32_t strx = [self read_uint32:range lastReadHex:&lastReadHex];
 
     // accumulate search info
@@ -212,7 +214,7 @@
     [node.details setAttributesFromRowIndex:bookmark:MVMetaDataAttributeName,symbolName,nil];
     [node.details setAttributes:MVUnderlineAttributeName,@"YES",nil];
 
-    size -= sizeof(struct ranlib);
+    size -= (uint32_t)sizeof(struct ranlib);
   }
 
   return node;
@@ -226,31 +228,32 @@
 {
   NSString * lastReadHex;
 
-  // archive start signature
+  int i = 0; // used as loop counter later
+
+  // archive start signature:
   [self createSignatureNode:rootNode
                     caption:@"Start"
                    location:imageOffset
                      length:8];
 
-
-  // read symbol table (ranlibs)
+  // read symbol table (ranlibs):
   MVNode * symtabHeaderNode = [self createHeaderNode:rootNode
                                              caption:@"Symtab Header"
-                                            location:imageOffset + 8
+                                            location:(imageOffset + 8)
                                               length:0]; // length will be determined in function
 
-  // skip symbol and string table for now
-  uint32_t symtabOffset = NSMaxRange(symtabHeaderNode.dataRange);
-  NSRange range = NSMakeRange(symtabOffset,0);
-  uint32_t symtabSize = [self read_uint32:range lastReadHex:&lastReadHex] + sizeof(uint32_t);
-  uint32_t strtabOffset = symtabOffset + symtabSize;
-  range = NSMakeRange(strtabOffset,0);
-  uint32_t strtabSize = [self read_uint32:range lastReadHex:&lastReadHex] + sizeof(uint32_t);
+  // skip symbol and string table for now:
+  uint32_t symtabOffset = (uint32_t)NSMaxRange(symtabHeaderNode.dataRange);
+  NSRange range = NSMakeRange(symtabOffset, 0);
+  uint32_t symtabSize = (uint32_t)([self read_uint32:range
+                                         lastReadHex:&lastReadHex] + sizeof(uint32_t));
+  uint32_t strtabOffset = (symtabOffset + symtabSize);
+  range = NSMakeRange(strtabOffset, 0);
+  uint32_t strtabSize = (uint32_t)([self read_uint32:range
+                                         lastReadHex:&lastReadHex] + sizeof(uint32_t));
 
-  // read headers
-
-  for (uint32_t location = strtabOffset + strtabSize; location < NSMaxRange(rootNode.dataRange); )
-  {
+  // read headers:
+  for (uint32_t location = (strtabOffset + strtabSize); location < NSMaxRange(rootNode.dataRange); i++) {
     MVNode * headerNode = [self createHeaderNode:rootNode
                                          caption:@"Object Header"
                                         location:location
@@ -258,23 +261,29 @@
 
     MVObjectInfo * objectInfo = [objectInfoMap objectForKey:[NSNumber numberWithUnsignedLong:location]];
 
-    uint32_t objectOffset = NSMaxRange(headerNode.dataRange); // starts right after the header
+    uint32_t objectOffset = (uint32_t)NSMaxRange(headerNode.dataRange); // starts right after the header
     uint32_t objectSize = objectInfo.length;
 
-    // create Mach-O object layout
+    // create Mach-O object layout:
     MVNode * objectNode = [self createDataNode:rootNode
                                        caption:objectInfo.name
                                       location:objectOffset
                                         length:objectSize];
 
-    objectInfo.layout = [MachOLayout layoutWithDataController:dataController rootNode:objectNode];
+    objectInfo.layout = [MachOLayout layoutWithDataController:dataController
+                                                     rootNode:objectNode];
 
-    [objectNode.userInfo setObject:objectInfo.layout forKey:MVLayoutUserInfoKey];
+    [objectNode.userInfo setObject:objectInfo.layout
+                            forKey:MVLayoutUserInfoKey];
     [objectInfo.layout doMainTasks];
 
-    // move to the next header
-    location = objectOffset + objectSize;
+    // move to the next header:
+    location = (objectOffset + objectSize);
   }
+
+#ifdef DEBUG
+  NSLog(@"'%i' headers read.\n", i);
+#endif /* DEBUG */
 
   // finish symbol table based on the information about processed objects
   [self createMemberNode:rootNode

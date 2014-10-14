@@ -45,7 +45,7 @@ using namespace std;
   return [[MachOLayout alloc] initWithDataController:dc rootNode:node];
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (BOOL)is64bit
 {
   MATCH_STRUCT(mach_header,imageOffset);
@@ -53,7 +53,7 @@ using namespace std;
           mach_header->cputype == CPU_TYPE_POWERPC64);
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (BOOL)isDylibStub
 {
   MATCH_STRUCT(mach_header,imageOffset);
@@ -137,7 +137,7 @@ using namespace std;
   return NULL;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(struct section_64 const *)findSection64ByName:(char const *)sectname
                                      andSegment:(char const *)segname
 {
@@ -155,7 +155,7 @@ using namespace std;
   return NULL;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (uint32_t)fileOffsetToRVA: (uint32_t)offset
 {
   NSParameterAssert([self is64bit] == NO);
@@ -172,7 +172,7 @@ using namespace std;
   return offset - segOffset + segAddr;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (uint64_t)fileOffsetToRVA64: (uint32_t)offset
 {
   NSParameterAssert([self is64bit] == YES);
@@ -294,7 +294,7 @@ _hex2int(char const * a, uint32_t len)
           nil];
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (NSDictionary *)userInfoForSection64:(struct section_64 const *)section_64
 {
   if (section_64 == NULL) return nil;
@@ -306,7 +306,7 @@ _hex2int(char const * a, uint32_t len)
           nil];
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (NSDictionary *)userInfoForRelocs
 {
   return [NSDictionary dictionaryWithObjectsAndKeys:
@@ -315,7 +315,7 @@ _hex2int(char const * a, uint32_t len)
           nil];
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (NSDictionary *)sectionInfoForRVA:(uint32_t)rva
 {
   NSParameterAssert([self is64bit] == NO);
@@ -328,7 +328,7 @@ _hex2int(char const * a, uint32_t len)
     return (--iter)->second.second;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (NSDictionary *)sectionInfoForRVA64:(uint64_t)rva64
 {
   NSParameterAssert([self is64bit] == YES);
@@ -340,7 +340,7 @@ _hex2int(char const * a, uint32_t len)
   }
   return (--iter)->second.second;
 }
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (NSString *)findSectionContainsRVA:(uint32_t)rva
 {
   NSDictionary * userInfo = [self sectionInfoForRVA:rva];
@@ -349,7 +349,7 @@ _hex2int(char const * a, uint32_t len)
                       CSTRING([userInfo objectForKey:@"sectname"])] : @"NO SECTION               ");
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (NSString *)findSectionContainsRVA64:(uint64_t)rva64
 {
   NSDictionary * userInfo = [self sectionInfoForRVA64:rva64];
@@ -358,21 +358,21 @@ _hex2int(char const * a, uint32_t len)
                       CSTRING([userInfo objectForKey:@"sectname"])] : @"NO SECTION               ");
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)sectionNodeContainsRVA:(uint32_t)rva
 {
   NSDictionary * userInfo = [self sectionInfoForRVA:rva];
   return (userInfo ? [self findNodeByUserInfo:userInfo] : nil);
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)sectionNodeContainsRVA64:(uint64_t)rva64
 {
   NSDictionary * userInfo = [self sectionInfoForRVA64:rva64];
   return (userInfo ? [self findNodeByUserInfo:userInfo] : nil);
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(void) processLinkEdit
 {
   // find related load commands
@@ -662,7 +662,7 @@ _hex2int(char const * a, uint32_t len)
 
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(void) processLinkEdit64
 {
   // find related load commands
@@ -946,7 +946,7 @@ _hex2int(char const * a, uint32_t len)
 
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(void)processDyldInfo
 {
   uint64_t base_addr = 0;
@@ -1081,7 +1081,7 @@ _hex2int(char const * a, uint32_t len)
 
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 template <typename SectionT>
 struct CompareSectionByName
 {
@@ -1107,7 +1107,7 @@ struct CompareSectionByName
   char const * sectname;
 };
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(void)processSections
 {
   NSString * lastNodeCaption;
@@ -1226,7 +1226,7 @@ struct CompareSectionByName
 
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(void)processSections64
 {
   NSString * lastNodeCaption;
@@ -1348,7 +1348,7 @@ struct CompareSectionByName
 
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(void)processEHFrames
 {
   // dylib stubs have no section
@@ -1405,7 +1405,7 @@ struct CompareSectionByName
   }
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(void)processEHFrames64
 {
   // dylib stubs have no section
@@ -1462,7 +1462,7 @@ struct CompareSectionByName
   }
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(void)processLSDA
 {
   // dylib stubs have no section
@@ -1513,7 +1513,7 @@ struct CompareSectionByName
   }
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(void)processLSDA64
 {
   // dylib stubs have no section
@@ -1564,7 +1564,7 @@ struct CompareSectionByName
   }
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(void)processUnwindInfo
 {
   NSString * lastNodeCaption;
@@ -1601,12 +1601,12 @@ struct CompareSectionByName
   }
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(void)processUnwindInfo64
 {
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(void)processObjcSections
 {
   PointerVector objcClassPointers;
@@ -1765,7 +1765,7 @@ struct CompareSectionByName
   }
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(void)processObjcSections64
 {
   Pointer64Vector objcClassPointers;
@@ -1890,7 +1890,7 @@ struct CompareSectionByName
 
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (void)processCodeSections
 {
   NSString * lastNodeCaption;
@@ -1923,7 +1923,7 @@ struct CompareSectionByName
   }
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (void)processCodeSections64
 {
   NSString * lastNodeCaption;
@@ -1956,7 +1956,7 @@ struct CompareSectionByName
   }
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (void)processSectionRelocs
 {
   // find Relocations node
@@ -1990,7 +1990,7 @@ struct CompareSectionByName
   }
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (void)processSectionRelocs64
 {
   // find Relocations node
@@ -2024,7 +2024,7 @@ struct CompareSectionByName
   }
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createMachONode:(MVNode *)parent
                     caption:(NSString *)caption
                    location:(uint32_t)location
@@ -2139,7 +2139,7 @@ struct CompareSectionByName
 
   return node;
 }
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 
 - (MVNode *)createMachO64Node:(MVNode *)parent
                       caption:(NSString *)caption
@@ -2248,7 +2248,7 @@ struct CompareSectionByName
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (void)doMainTasks
 {
   uint32_t      ncmds;        // number of load commands
@@ -2421,7 +2421,7 @@ struct CompareSectionByName
   [super doMainTasks];
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (void)doBackgroundTasks
 {
   NSBlockOperation * linkEditOperation = [NSBlockOperation blockOperationWithBlock:^

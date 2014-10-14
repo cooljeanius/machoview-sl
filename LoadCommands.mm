@@ -16,7 +16,7 @@ using namespace std;
 //============================================================================
 @implementation MachOLayout (LoadCommands)
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (NSString *)getNameForCommand:(uint32_t)cmd
 {
   switch(cmd)
@@ -69,7 +69,7 @@ using namespace std;
   }
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createLCSegmentNode:(MVNode *)parent
                       caption:(NSString *)caption
                      location:(uint32_t)location
@@ -170,7 +170,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createSectionNode:(MVNode *)parent
                     caption:(NSString *)caption
                    location:(uint32_t)location
@@ -335,7 +335,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createLCSegment64Node:(MVNode *)parent
                         caption:(NSString *)caption
                        location:(uint32_t)location
@@ -436,7 +436,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createSection64Node:(MVNode *)parent
                     caption:(NSString *)caption
                    location:(uint32_t)location
@@ -607,7 +607,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createLCSymtabNode:(MVNode *)parent
                      caption:(NSString *)caption
                     location:(uint32_t)location
@@ -662,7 +662,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createLCDysymtabNode:(MVNode *)parent
                        caption:(NSString *)caption
                       location:(uint32_t)location
@@ -801,7 +801,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createLCTwolevelHintsNode:(MVNode *)parent
                             caption:(NSString *)caption
                            location:(uint32_t)location
@@ -844,7 +844,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createLCDylinkerNode:(MVNode *)parent
                        caption:(NSString *)caption
                       location:(uint32_t)location
@@ -890,7 +890,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createLCPrebindChksumNode:(MVNode *)parent
                               caption:(NSString *)caption
                              location:(uint32_t)location
@@ -928,7 +928,7 @@ using namespace std;
 }
 
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createLCUUIDNode:(MVNode *)parent
                    caption:(NSString *)caption
                   location:(uint32_t)location
@@ -970,7 +970,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createLCThreadNode:(MVNode *)parent
                      caption:(NSString *)caption
                     location:(uint32_t)location
@@ -1208,7 +1208,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createLCDylibNode:(MVNode *)parent
                     caption:(NSString *)caption
                    location:(uint32_t)location
@@ -1279,7 +1279,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createLCLinkeditDataNode:(MVNode *)parent
                            caption:(NSString *)caption
                           location:(uint32_t)location
@@ -1322,7 +1322,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createLCRoutinesNode:(MVNode *)parent
                          caption:(NSString *)caption
                         location:(uint32_t)location
@@ -1401,7 +1401,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createLCRoutines64Node:(MVNode *)parent
                            caption:(NSString *)caption
                           location:(uint32_t)location
@@ -1480,7 +1480,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createLCSubFrameworkNode:(MVNode *)parent
                              caption:(NSString *)caption
                             location:(uint32_t)location
@@ -1526,7 +1526,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createLCSubUmbrellaNode:(MVNode *)parent
                             caption:(NSString *)caption
                            location:(uint32_t)location
@@ -1572,7 +1572,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createLCSubClientNode:(MVNode *)parent
                           caption:(NSString *)caption
                          location:(uint32_t)location
@@ -1618,7 +1618,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createLCSubLibraryNode:(MVNode *)parent
                            caption:(NSString *)caption
                           location:(uint32_t)location
@@ -1664,7 +1664,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createLCDyldInfoNode:(MVNode *)parent
                          caption:(NSString *)caption
                         location:(uint32_t)location
@@ -1755,7 +1755,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createLCEncryptionInfoNode:(MVNode *)parent
                                caption:(NSString *)caption
                               location:(uint32_t)location
@@ -1804,7 +1804,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createLCRPathNode:(MVNode *)parent
                       caption:(NSString *)caption
                      location:(uint32_t)location
@@ -1850,7 +1850,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createLCVersionMinNode:(MVNode *)parent
                            caption:(NSString *)caption
                           location:(uint32_t)location
@@ -1896,7 +1896,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createLCMainNode:(MVNode *)parent
                      caption:(NSString *)caption
                     location:(uint32_t)location
@@ -1941,7 +1941,7 @@ using namespace std;
 }
 
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)createLCSourceVersionNode:(MVNode *)parent
                               caption:(NSString *)caption
                              location:(uint32_t)location
@@ -1996,7 +1996,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(MVNode *)createLoadCommandNode:(MVNode *)parent
                          caption:(NSString *)caption
                         location:(uint32_t)location
@@ -2016,24 +2016,23 @@ using namespace std;
                               location:location
                        segment_command:segment_command];
 
-      // preserv segment RVA/size for offset lookup
+      // preserv segment RVA/size for offset lookup:
       segmentInfo[segment_command->fileoff + imageOffset] = make_pair(segment_command->vmaddr, segment_command->vmsize);
 
-      // preserv load segment command info for latter use
+      // preserv load segment command info for latter use:
       segments.push_back(segment_command);
 
-      // Section Headers
-      for (uint32_t nsect = 0; nsect < segment_command->nsects; ++nsect)
-      {
-        uint32_t sectionloc = location + sizeof(struct segment_command) + nsect * sizeof(struct section);
-        MATCH_STRUCT(section,sectionloc)
+      // Section Headers:
+      for (uint32_t nsect = 0U; nsect < segment_command->nsects; ++nsect) {
+        uint32_t sectionloc = (uint32_t)(location + sizeof(struct segment_command) + nsect * sizeof(struct section));
+        MATCH_STRUCT(section, sectionloc)
         [self createSectionNode:node
                         caption:[NSString stringWithFormat:@"Section Header (%s)",
-                                 string(section->sectname,16).c_str()]
+                                 string(section->sectname, 16).c_str()]
                        location:sectionloc
                         section:section];
 
-        // preserv section fileOffset/sectName for RVA lookup
+        // preserve section fileOffset/sectName for RVA lookup:
         NSDictionary * userInfo = [self userInfoForSection:section];
         CFRetain(userInfo);
         insertChild[section->addr] = make_pair(section->offset + imageOffset, userInfo);
@@ -2053,24 +2052,23 @@ using namespace std;
                                 location:location
                       segment_command_64:segment_command_64];
 
-      // preserv segment RVA/size for offset lookup
+      // preserv segment RVA/size for offset lookup:
       segmentInfo[segment_command_64->fileoff + imageOffset] = make_pair(segment_command_64->vmaddr, segment_command_64->vmsize);
 
-      // preserv load segment command info for latter use
+      // preserv load segment command info for latter use:
       segments_64.push_back(segment_command_64);
 
-      // Section Headers
-      for (uint32_t nsect = 0; nsect < segment_command_64->nsects; ++nsect)
-      {
-        uint32_t sectionloc = location + sizeof(struct segment_command_64) + nsect * sizeof(struct section_64);
-        MATCH_STRUCT(section_64,sectionloc)
+      // Section Headers:
+      for (uint32_t nsect = 0U; nsect < segment_command_64->nsects; ++nsect) {
+        uint32_t sectionloc = (uint32_t)(location + sizeof(struct segment_command_64) + nsect * sizeof(struct section_64));
+        MATCH_STRUCT(section_64, sectionloc)
         [self createSection64Node:node
                           caption:[NSString stringWithFormat:@"Section64 Header (%s)",
                                    string(section_64->sectname,16).c_str()]
                          location:sectionloc
                        section_64:section_64];
 
-        // preserv section fileOffset/sectName for RVA lookup
+        // preserve section fileOffset/sectName for RVA lookup:
         NSDictionary * userInfo = [self userInfoForSection64:section_64];
         CFRetain(userInfo);
         insertChild[section_64->addr] = make_pair(section_64->offset + imageOffset, userInfo);

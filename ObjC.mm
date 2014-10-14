@@ -357,7 +357,7 @@ struct message_ref64
 @implementation MachOLayout (ObjC)
 
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)objcSectionNodeContainsRVA:(uint32_t)rva
 {
   MVNode * node = [self sectionNodeContainsRVA:rva];
@@ -365,9 +365,9 @@ struct message_ref64
   return (node && [[node.userInfo objectForKey:@"segname"] isEqualToString:@"__OBJC"] ? node: nil);
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 // returns YES if has already been processed
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)entryInSectionNode:(MVNode *)node atLocation:(uint32_t)location
 {
   NSUInteger childCount = [node numberOfChildren];
@@ -384,7 +384,7 @@ struct message_ref64
   return nil;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjCCFStringsNode:(MVNode *)parent
                             caption:(NSString *)caption
                            location:(uint32_t)location
@@ -443,7 +443,7 @@ struct message_ref64
   return node;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjCCFStrings64Node:(MVNode *)parent
                               caption:(NSString *)caption
                              location:(uint32_t)location
@@ -502,7 +502,7 @@ struct message_ref64
   return node;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjCImageInfoNode:(MVNode *)parent
                             caption:(NSString *)caption
                            location:(uint32_t)location
@@ -535,33 +535,31 @@ struct message_ref64
   return node;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjCVariablesNode:(MVNode *)parent
                             caption:(NSString *)caption
                            location:(uint32_t)location
                               ivars:(struct objc_ivar_list_t const *)objc_ivar_list_t
 {
-  // check for parent
-  if (parent == nil)
-  {
+  // check for parent:
+  if (parent == nil) {
     return nil;
   }
 
-  // check for duplicates
+  // check for duplicates:
   MVNode * node = [self entryInSectionNode:parent atLocation:location];
-  if (node != nil)
-  {
+  if (node != nil) {
     return node;
   }
 
   MVNodeSaver nodeSaver;
   node = [parent insertChildWithDetails:[@"Objc Variable List: " stringByAppendingString:caption]
                                location:location
-                                 length:sizeof(struct objc_ivar_list_t) + objc_ivar_list_t->ivar_count*sizeof(struct objc_ivar_t)
+                                 length:(uint32_t)(sizeof(struct objc_ivar_list_t) + (objc_ivar_list_t->ivar_count * sizeof(struct objc_ivar_t)))
                                   saver:nodeSaver];
 
 
-  NSRange range = NSMakeRange(location,0);
+  NSRange range = NSMakeRange(location, 0);
   NSString * lastReadHex;
 
   [self read_int32:range lastReadHex:&lastReadHex];
@@ -606,32 +604,30 @@ struct message_ref64
   return node;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjCMethodsNode:(MVNode *)parent
                           caption:(NSString *)caption
                          location:(uint32_t)location
                           methods:(struct objc_method_list_t const *)objc_method_list_t
 {
-  // check for parent
-  if (parent == nil)
-  {
+  // check for parent:
+  if (parent == nil) {
     return nil;
   }
 
-  // check for duplicates
+  // check for duplicates:
   MVNode * node = [self entryInSectionNode:parent atLocation:location];
-  if (node != nil)
-  {
+  if (node != nil) {
     return node;
   }
 
   MVNodeSaver nodeSaver;
   node = [parent insertChildWithDetails:[@"Objc Method List: " stringByAppendingString:caption]
                                location:location
-                                 length:sizeof(struct objc_method_list_t) + objc_method_list_t->method_count*sizeof(struct objc_method_t)
+                                 length:(uint32_t)(sizeof(struct objc_method_list_t) + (objc_method_list_t->method_count * sizeof(struct objc_method_t)))
                                   saver:nodeSaver];
 
-  NSRange range = NSMakeRange(location,0);
+  NSRange range = NSMakeRange(location, 0);
   NSString * lastReadHex;
 
   [self read_uint32:range lastReadHex:&lastReadHex];
@@ -684,32 +680,30 @@ struct message_ref64
   return node;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjCMethodDescrsNode:(MVNode *)parent
                                caption:(NSString *)caption
                               location:(uint32_t)location
                              methodDescrs:(struct objc_method_description_list_t const *)objc_method_description_list_t
 {
-  // check for parent
-  if (parent == nil)
-  {
+  // check for parent:
+  if (parent == nil) {
     return nil;
   }
 
-  // check for duplicates
+  // check for duplicates:
   MVNode * node = [self entryInSectionNode:parent atLocation:location];
-  if (node != nil)
-  {
+  if (node != nil) {
     return node;
   }
 
   MVNodeSaver nodeSaver;
   node = [parent insertChildWithDetails:[@"Objc Method Descr List: " stringByAppendingString:caption]
                                location:location
-                                 length:sizeof(struct objc_method_description_list_t) + objc_method_description_list_t->count*sizeof(struct objc_method_description_t)
+                                 length:(uint32_t)(sizeof(struct objc_method_description_list_t) + (objc_method_description_list_t->count * sizeof(struct objc_method_description_t)))
                                   saver:nodeSaver];
 
-  NSRange range = NSMakeRange(location,0);
+  NSRange range = NSMakeRange(location, 0);
   NSString * lastReadHex;
 
   [self read_int32:range lastReadHex:&lastReadHex];
@@ -747,7 +741,7 @@ struct message_ref64
   return node;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjCProtocolNode:(MVNode *)parent
                            caption:(NSString *)caption
                           location:(uint32_t)location
@@ -846,32 +840,30 @@ struct message_ref64
   return node;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjCProtocolListNode:(MVNode *)parent
                                caption:(NSString *)caption
                               location:(uint32_t)location
                              protocols:(struct objc_protocol_list_t const *)objc_protocol_list_t
 {
-  // check for parent
-  if (parent == nil)
-  {
+  // check for parent:
+  if (parent == nil) {
     return nil;
   }
 
-  // check for duplicates
+  // check for duplicates:
   MVNode * node = [self entryInSectionNode:parent atLocation:location];
-  if (node != nil)
-  {
+  if (node != nil) {
     return node;
   }
 
   MVNodeSaver nodeSaver;
   node = [parent insertChildWithDetails:[@"Objc Protocol List: " stringByAppendingString:caption]
                                location:location
-                                 length:sizeof(struct objc_protocol_list_t) + objc_protocol_list_t->count*sizeof(uint32_t)
+                                 length:(uint32_t)(sizeof(struct objc_protocol_list_t) + (objc_protocol_list_t->count * sizeof(uint32_t)))
                                   saver:nodeSaver];
 
-  NSRange range = NSMakeRange(location,0);
+  NSRange range = NSMakeRange(location, 0);
   NSString * lastReadHex;
 
   [self read_uint32:range lastReadHex:&lastReadHex];
@@ -928,7 +920,7 @@ struct message_ref64
   return node;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjCClassNode:(MVNode *)parent
                         caption:(NSString *)caption
                        location:(uint32_t)location
@@ -1090,7 +1082,7 @@ struct message_ref64
   return node;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjCCategoryNode:(MVNode *)parent
                            caption:(NSString *)caption
                           location:(uint32_t)location
@@ -1189,7 +1181,7 @@ struct message_ref64
   return node;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjCSymtabNode:(MVNode *)parent
                          caption:(NSString *)caption
                         location:(uint32_t)location
@@ -1281,7 +1273,7 @@ struct message_ref64
 
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjCModulesNode:(MVNode *)parent
                           caption:(NSString *)caption
                          location:(uint32_t)location
@@ -1346,7 +1338,7 @@ struct message_ref64
   return node;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjCClassExtNode:(MVNode *)parent
                            caption:(NSString *)caption
                           location:(uint32_t)location
@@ -1398,7 +1390,7 @@ struct message_ref64
   return node;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjCProtocolExtNode:(MVNode *)parent
                               caption:(NSString *)caption
                              location:(uint32_t)location
@@ -1456,7 +1448,7 @@ struct message_ref64
   return node;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjC2PointerListNode:(MVNode *)parent
                                caption:(NSString *)caption
                               location:(uint32_t)location
@@ -1488,7 +1480,7 @@ struct message_ref64
   return node;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjC2Pointer64ListNode:(MVNode *)parent
                                  caption:(NSString *)caption
                                 location:(uint32_t)location
@@ -1520,7 +1512,7 @@ struct message_ref64
   return node;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjC2MsgRefsNode:(MVNode *)parent
                            caption:(NSString *)caption
                           location:(uint32_t)location
@@ -1559,7 +1551,7 @@ struct message_ref64
   return node;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjC2MsgRefs64Node:(MVNode *)parent
                              caption:(NSString *)caption
                             location:(uint32_t)location
@@ -1598,7 +1590,7 @@ struct message_ref64
   return node;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjC2MethodListNode:(MVNode *)parent
                               caption:(NSString *)caption
                              location:(uint32_t)location
@@ -1676,7 +1668,7 @@ struct message_ref64
   return node;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjC2Method64ListNode:(MVNode *)parent
                                 caption:(NSString *)caption
                                location:(uint32_t)location
@@ -1754,7 +1746,7 @@ struct message_ref64
   return node;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjC2PropertyListNode:(MVNode *)parent
                                 caption:(NSString *)caption
                                location:(uint32_t)location
@@ -1826,7 +1818,7 @@ struct message_ref64
   return node;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjC2Property64ListNode:(MVNode *)parent
                                   caption:(NSString *)caption
                                  location:(uint32_t)location
@@ -1898,7 +1890,7 @@ struct message_ref64
   return  node;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjC2ProtocolNode:(MVNode *)parent
                             caption:(NSString *)caption
                            location:(uint32_t)location
@@ -2051,7 +2043,7 @@ struct message_ref64
   return node;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjC2Protocol64Node:(MVNode *)parent
                               caption:(NSString *)caption
                              location:(uint32_t)location
@@ -2204,7 +2196,7 @@ struct message_ref64
   return node;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjC2ProtocolListNode:(MVNode *)parent
                                 caption:(NSString *)caption
                                location:(uint32_t)location
@@ -2265,7 +2257,7 @@ struct message_ref64
   return node;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjC2Protocol64ListNode:(MVNode *)parent
                                   caption:(NSString *)caption
                                  location:(uint32_t)location
@@ -2326,7 +2318,7 @@ struct message_ref64
   return node;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjC2VariableListNode:(MVNode *)parent
                                 caption:(NSString *)caption
                                location:(uint32_t)location
@@ -2504,7 +2496,7 @@ struct message_ref64
   return node;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjC2ClassRONode:(MVNode *)parent
                            caption:(NSString *)caption
                           location:(uint32_t)location
@@ -2649,7 +2641,7 @@ struct message_ref64
   return node;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjC2Class64RONode:(MVNode *)parent
                              caption:(NSString *)caption
                             location:(uint32_t)location
@@ -2800,7 +2792,7 @@ struct message_ref64
   return node;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjC2ClassNode:(MVNode *)parent
                          caption:(NSString *)caption
                         location:(uint32_t)location
@@ -2875,7 +2867,7 @@ struct message_ref64
   return node;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjC2Class64Node:(MVNode *)parent
                            caption:(NSString *)caption
                           location:(uint32_t)location
@@ -2950,7 +2942,7 @@ struct message_ref64
   return node;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjC2CategoryNode:(MVNode *)parent
                             caption:(NSString *)caption
                            location:(uint32_t)location
@@ -3079,7 +3071,7 @@ struct message_ref64
   return node;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 - (MVNode *)createObjC2Category64Node:(MVNode *)parent
                               caption:(NSString *)caption
                              location:(uint32_t)location
@@ -3208,7 +3200,7 @@ struct message_ref64
   return node;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 -(void)parseObjC2ClassPointers:(PointerVector const *)classes
               CategoryPointers:(PointerVector const *)categories
               ProtocolPointers:(PointerVector const *)protocols
@@ -3262,7 +3254,7 @@ struct message_ref64
 
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 -(void)parseObjC2Class64Pointers:(Pointer64Vector const *)classes
               Category64Pointers:(Pointer64Vector const *)categories
               Protocol64Pointers:(Pointer64Vector const *)protocols

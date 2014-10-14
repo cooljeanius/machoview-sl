@@ -26,7 +26,7 @@ using namespace std;
   return self;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 + (FatLayout *)layoutWithDataController:(MVDataController *)dc rootNode:(MVNode *)node
 {
   return [[FatLayout alloc] initWithDataController:dc rootNode:node];

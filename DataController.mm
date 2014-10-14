@@ -42,7 +42,7 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
 
 @synthesize offsetStr, dataStr, descriptionStr, valueStr;
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (id)init
 {
   self = [super init];
@@ -109,7 +109,7 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
   return self;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(void)dealloc
 {
 #ifdef MV_STATISTICS
@@ -121,7 +121,7 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
 #endif /* NO_OBJC_ARC */
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(NSString *)coloumnAtIndex:(NSUInteger)index
 {
   switch (index) {
@@ -134,7 +134,7 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
   return nil;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(void)replaceColoumnAtIndex:(NSUInteger)index withString:(NSString *)str
 {
   coloumnsOffset = 0;
@@ -195,7 +195,7 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
   return [NSColor colorWithDeviceRed:fred green:fgreen blue:fblue alpha:falpha];
 }
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (void)saveAttributestoFile:(FILE *)pFile
 {
   uint32_t numAttributes = (uint32_t)[attributes count];
@@ -224,7 +224,7 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
   }
 }
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (void)loadAttributesFromFile:(FILE *)pFile
 {
   uint32_t numAttributes;
@@ -391,13 +391,13 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
   return [[MVTable alloc] initWithArchiver:_archiver];
 }
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (NSUInteger)rowCountToDisplay
 {
   return [displayRows count];
 }
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVRow *)getRowToDisplay: (NSUInteger)rowIndex
 {
   MVRow * row = nil;
@@ -422,7 +422,7 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
   return row;
 }
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (void)insertRowWithOffset:(uint32_t)offset :(id)col0 :(id)col1 :(id)col2 :(id)col3
 {
   MVRow * row = [[MVRow alloc] init];
@@ -436,13 +436,13 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
   [archiver addObjectToSave:row];
 }
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (void)appendRow:(id)col0 :(id)col1 :(id)col2 :(id)col3
 {
   [self insertRowWithOffset:0 :col0:col1:col2:col3];
 }
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (void)updateCellContentTo:(id)object atRow:(NSUInteger)rowIndex andCol:(NSUInteger)colIndex
 {
   MVRow * row = [rows objectAtIndex:rowIndex];
@@ -452,22 +452,22 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
   [archiver addObjectToSave:row];
 }
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (void)popRow
 {
   MVRow * row = [rows lastObject];
   row.deleted = YES;
 }
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (NSUInteger)rowCount
 {
   return [rows count];
 }
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 //  input are name-value pairs
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(NSMutableDictionary *)attributesWithPairs:(id)firstArg :(va_list)args
 {
   NSMutableDictionary * attributes = [[NSMutableDictionary alloc] init];
@@ -650,25 +650,25 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
   return self;
 }
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(NSString *)description
 {
   return [[super description] stringByAppendingFormat:@" [%@]", caption];
 }
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)childAtIndex:(NSUInteger)n
 {
   return [children objectAtIndex:n];
 }
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (NSUInteger)numberOfChildren
 {
   return [children count];
 }
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (void)insertNode:(MVNode *)node
 {
   MVLayout * layout = [userInfo objectForKey:MVLayoutUserInfoKey];
@@ -707,7 +707,7 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
   [layout.dataController.treeLock unlock];
 }
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)insertChild:(NSString *)_caption
             location:(uint32_t)location
               length:(uint32_t)length
@@ -721,7 +721,7 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
   return node;
 }
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)insertChildWithDetails:(NSString *)_caption
                        location:(uint32_t)location
                          length:(uint32_t)length
@@ -734,7 +734,7 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
   return node;
 }
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *)findNodeByUserInfo:(NSDictionary *)uinfo
 {
   // act node
@@ -757,7 +757,7 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
   return nil;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (void)openDetails
 {
   MVLayout * layout = [userInfo objectForKey:MVLayoutUserInfoKey];
@@ -775,7 +775,7 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
   }
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (void)closeDetails
 {
   if (details.swapFile != NULL)
@@ -785,7 +785,7 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
   }
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (void)sortDetails
 {
   MVLayout * layout = [userInfo objectForKey:MVLayoutUserInfoKey];
@@ -794,7 +794,7 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
   [layout.dataController updateStatus:MVStatusTaskTerminated];
 }
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (void)filterDetails: (NSString *)filter
 {
   MVLayout * layout = [userInfo objectForKey:MVLayoutUserInfoKey];
@@ -828,7 +828,7 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
   [layout.dataController updateStatus:MVStatusTaskTerminated];
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (void)loadFromFile:(FILE *)pFile
 {
   MVLayout * layout = [userInfo objectForKey:MVLayoutUserInfoKey];
@@ -842,7 +842,7 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
   [layout.dataController updateStatus:MVStatusTaskTerminated];
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(void)clear
 {
   MVLayout * layout = [userInfo objectForKey:MVLayoutUserInfoKey];
@@ -885,7 +885,7 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
   }
 }
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(NSString *)getARMCpu:(cpu_subtype_t)cpusubtype
 {
   switch (cpusubtype)
@@ -903,7 +903,7 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
   }
 }
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(BOOL)isSupportedMachine:(NSString *)machine
 {
   return ([machine isEqualToString:@"X86"] == YES ||
@@ -911,7 +911,7 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
           [machine isEqualToString:@"ARM"] == YES);
 }
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(void)createMachOLayout:(MVNode *)node
              mach_header:(struct mach_header const *)mach_header
 {
@@ -946,7 +946,7 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
   }
 }
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(void)createArchiveLayout:(MVNode *)node machine:(NSString *)machine
 {
   node.caption = machine ? [NSString stringWithFormat:@"Static Library (%@)", machine] : @"Static Library";
@@ -966,7 +966,7 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
   }
 }
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(void)createFatLayout:(MVNode *)node
             fat_header:(struct fat_header const *)fat_header
 {
@@ -1009,7 +1009,7 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
 
 }
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 // create Mach-O layouts based on file headers
 - (void)createLayouts
 {
@@ -1046,7 +1046,7 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
   rootNode.dataRange = NSMakeRange(0, [fileData length]);
 }
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (void)treeViewWillChange
 {
   NSNotificationCenter * nc = [NSNotificationCenter defaultCenter];
@@ -1054,7 +1054,7 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
                     object:self];
 }
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (void)treeViewDidChange
 {
   NSNotificationCenter * nc = [NSNotificationCenter defaultCenter];
@@ -1062,7 +1062,7 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
                     object:self];
 }
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (void)updateTreeView: (MVNode *)node
 {
   NSNotificationCenter * nc = [NSNotificationCenter defaultCenter];
@@ -1071,7 +1071,7 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
                   userInfo:node ? [NSDictionary dictionaryWithObject:node forKey:MVNodeUserInfoKey] : nil];
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (void)updateTableView
 {
   NSNotificationCenter * nc = [NSNotificationCenter defaultCenter];
@@ -1079,7 +1079,7 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
                     object:self];
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (void)updateStatus: (NSString *)status
 {
   NSNotificationCenter * nc = [NSNotificationCenter defaultCenter];
@@ -1131,31 +1131,31 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
   return self;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 +(MVArchiver *) archiverWithPath:(NSString *)path
 {
   return [[MVArchiver alloc] initWithPath:path];
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(void) suspend
 {
   [saverLock lock];
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(void) resume
 {
   [saverLock unlock];
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(void) halt
 {
   [saverThread cancel];
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(void) addObjectToSave:(id)object;
 {
   NSParameterAssert([object conformsToProtocol:@protocol(MVSerializing)] == YES);
@@ -1171,7 +1171,7 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
   }
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 -(void) doSave
 {
   for (;;)

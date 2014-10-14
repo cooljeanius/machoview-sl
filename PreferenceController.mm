@@ -12,8 +12,11 @@
 
 -(id)init
 {
-    if (![super initWithWindowNibName:@"Preferences"])
+    if (![super initWithWindowNibName:@"Preferences"]) {
         return nil;
+    }
+
+    NSLog(@"Warning: preferences are not completely implemented yet.\n");
     return self;
 }
 

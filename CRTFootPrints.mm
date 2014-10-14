@@ -62,7 +62,7 @@ static AsmFootPrint const SDK104Target104X86v1 =
   {2, 0x74, 0x02},                          // jz      short loc_2C51
   {2, 0xFF, 0xD0},                          // call    eax
 
-  //loc_2C51: 
+  //loc_2C51:
   {2, 0x8B, 0x83}, GAP(4),                  // mov     eax, ds:(__cthread_init_routine_ptr - 2C28h)[ebx]
   {2, 0x8B, 0x00},                          // mov     eax, [eax]
   {2, 0x85, 0xC0},                          // test    eax, eax
@@ -91,7 +91,7 @@ static AsmFootPrint const SDK104Target104X86v1 =
   {2, 0x85, 0xFF},                          // test    edi, edi
   {2, 0x75, 0x64},                          // jnz     short loc_2D06
   {2, 0xEB, 0x27},                          // jmp     short loc_2CCB
-  // ---------------------------------------------------------------------------
+  // ----------------------------------------------------------------------
 
   //loc_2CA4:
   {3, 0x80, 0xF9, 0x2F},                    // cmp     cl, 2Fh
@@ -134,8 +134,8 @@ static AsmFootPrint const SDK104Target104X86v1 =
   {1, 0xE8}, GAP(4),                        // call    _main
   {3, 0x89, 0x04, 0x24},                    // mov     [esp], eax      ; int
   {1, 0xE8}, GAP(4),                        // call    _exit
-  // ---------------------------------------------------------------------------
-  
+  // ----------------------------------------------------------------------
+
   //loc_2D06:
   {3, 0x0F, 0xB6, 0x0F},                    // movzx   ecx, byte ptr [edi]
   {2, 0x84, 0xC9},                          // test    cl, cl
@@ -144,7 +144,7 @@ static AsmFootPrint const SDK104Target104X86v1 =
   {2, 0x89, 0xFA},                          // mov     edx, edi
   {5, 0xB8, 0x00, 0x00, 0x00, 0x00},        // mov     eax, 0
   {2, 0xEB, 0x8B},                          // jmp     short loc_2CA4
-  
+
   //sub_2D19:
   {1, 0x55},                                // push    ebp
   {2, 0x89, 0xE5},                          // mov     ebp, esp
@@ -161,16 +161,16 @@ static AsmFootPrint const SDK104Target104X86v1 =
   {1, 0x5B},                                // pop     ebx
   {1, 0x5D},                                // pop     ebp
   {1, 0xC3},                                // retn
-  // ---------------------------------------------------------------------------
+  // ----------------------------------------------------------------------
   {1, 0x90},                                // nop
   {5, 0x68, 0x00, 0x10, 0x00, 0x00},        // push    1000h
   {2, 0xFF, 0x25}, GAP(4),                  // jmp     ds:dword_150010
-  // ---------------------------------------------------------------------------
+  // ----------------------------------------------------------------------
   {1, 0x90},                                // nop
- 
+
   //sub_2D50:
   {2, 0xFF, 0x25}, GAP(4),                  // jmp     ds:dword_150014
-};  
+};
 
 
 static AsmFootPrint const SDK104Target104X86v2 =
@@ -190,7 +190,7 @@ static AsmFootPrint const SDK104Target104X86v2 =
   {4, 0x89, 0x5C, 0x24, 0x08},              // mov     [esp+14h+var_C], ebx
   {5, 0xE8, 0x01, 0x00, 0x00, 0x00},        // call    __start
   {1, 0xF4},                                // hlt
-  
+
   //__start:
   {1, 0x55},                                // push    ebp
   {2, 0x89, 0xE5},                          // mov     ebp, esp
@@ -210,37 +210,37 @@ static AsmFootPrint const SDK104Target104X86v2 =
   {1, 0xB9}, GAP(4),                        // mov     ecx, offset byte_120
   {2, 0xEB, 0x19},                          // jmp     short loc_73
   // ---------------------------------------------------------------------------
-  
+
   //loc_5A:
   {2, 0x89, 0xCA},                          // mov     edx, ecx
   {2, 0xEB, 0x0E},                          // jmp     short loc_6C
   // ---------------------------------------------------------------------------
-  
+
   //loc_5E:
   {2, 0x3C, 0x2F},                          // cmp     al, 2Fh ; '/'
   {2, 0x74, 0x05},                          // jz      short loc_67
   {3, 0x83, 0xC2, 0x01},                    // add     edx, 1
   {2, 0xEB, 0x05},                          // jmp     short loc_6C
   // ---------------------------------------------------------------------------
-  
+
   //loc_67:
   {3, 0x83, 0xC2, 0x01},                    // add     edx, 1
   {2, 0x89, 0xD1},                          // mov     ecx, edx
-  
+
   //loc_6C:
   {3, 0x0F, 0xB6, 0x02},                    // movzx   eax, byte ptr [edx]
   {2, 0x84, 0xC0},                          // test    al, al
   {2, 0x75, 0xEB},                          // jnz     short loc_5E
-  
+
   //loc_73:
   {2, 0x89, 0x0D}, GAP(4),                  // mov     ds:___progname, ecx
   {2, 0x89, 0xD8},                          // mov     eax, ebx
   {2, 0xEB, 0x03},                          // jmp     short loc_80
   // ---------------------------------------------------------------------------
-  
+
   //loc_7D:
   {3, 0x83, 0xC0, 0x04},                    // add     eax, 4
-  
+
   //loc_80:
   {2, 0x8B, 0x10},                          // mov     edx, [eax]
   {2, 0x85, 0xD2},                          // test    edx, edx
@@ -251,14 +251,14 @@ static AsmFootPrint const SDK104Target104X86v2 =
   {2, 0x85, 0xC0},                          // test    eax, eax
   {2, 0x74, 0x02},                          // jz      short loc_96
   {2, 0xFF, 0xD0},                          // call    eax
-  
+
   //loc_96:
   {1, 0xA1}, GAP(4),                        // mov     eax, ds:__cthread_init_routine_ptr
   {2, 0x8B, 0x00},                          // mov     eax, [eax]
   {2, 0x85, 0xC0},                          // test    eax, eax
   {2, 0x74, 0x02},                          // jz      short loc_A3
   {2, 0xFF, 0xD0},                          // call    eax
-  
+
   //loc_A3:
   {1, 0xE8}, GAP(4),                        // call    ___keymgr_dwarf2_register_sections
   {3, 0x8D, 0x45, 0xE0},                    // lea     eax, [ebp+var_20]
@@ -275,7 +275,7 @@ static AsmFootPrint const SDK104Target104X86v2 =
   {2, 0x74, 0x08},                          // jz      short loc_E0
   {3, 0x89, 0x04, 0x24},                    // mov     [esp], eax      ; void (*)(void)
   {1, 0xE8}, GAP(4),                        // call    _atexit
-  
+
   //loc_E0:
   {1, 0xA1}, GAP(4),                        // mov     eax, ds:_errno_ptr
   {6, 0xC7, 0x00, 0x00, 0x00, 0x00, 0x00},  // mov     dword ptr [eax], 0
@@ -306,8 +306,8 @@ static AsmFootPrint const SDK104Target104X86v3 =
   {4, 0x89, 0x5C, 0x24, 0x08},              // mov     [esp+8], ebx
   {5, 0xE8, 0x01, 0x00, 0x00, 0x00},        // call    __start
   {1, 0xF4},                                // hlt
-  
-  
+
+
   //__start:
   {1, 0x55},                                // push    ebp
   {2, 0x89, 0xE5},                          // mov     ebp, esp
@@ -328,32 +328,32 @@ static AsmFootPrint const SDK104Target104X86v3 =
   {1, 0xB9}, GAP(4),                        // mov     ecx, offset unk_13C874
   {2, 0xEB, 0x11},                          // jmp     short loc_26C1
   // ---------------------------------------------------------------------------
-  
+
   //loc_26B0:
   {2, 0x3C, 0x2F},                          // cmp     al, 2Fh
   {2, 0x74, 0x03},                          // jz      short loc_26B7
   {1, 0x42},                                // inc     edx
   {2, 0xEB, 0x03},                          // jmp     short loc_26BA
   // ---------------------------------------------------------------------------
-  
+
   //loc_26B7:
   {1, 0x42},                                // inc     edx
   {2, 0x89, 0xD1},                          // mov     ecx, edx
-  
+
   //loc_26BA:
   {3, 0x0F, 0xB6, 0x02},                    // movzx   eax, byte ptr [edx]
   {2, 0x84, 0xC0},                          // test    al, al
   {2, 0x75, 0xEF},                          // jnz     short loc_26B0
-  
+
   //loc_26C1:
   {2, 0x89, 0xD8},                          // mov     eax, ebx
   {2, 0x89, 0x0D}, GAP(4),                  // mov     ds:___progname, ecx
   {2, 0xEB, 0x03},                          // jmp     short loc_26CE
   // ---------------------------------------------------------------------------
-  
+
   //loc_26CB:
   {3, 0x83, 0xC0, 0x04},                    // add     eax, 4
-  
+
   //loc_26CE:
   {2, 0x8B, 0x10},                          // mov     edx, [eax]
   {2, 0x85, 0xD2},                          // test    edx, edx
@@ -364,14 +364,14 @@ static AsmFootPrint const SDK104Target104X86v3 =
   {2, 0x85, 0xC0},                          // test    eax, eax
   {2, 0x74, 0x02},                          // jz      short loc_26E4
   {2, 0xFF, 0xD0},                          // call    eax
-  
+
   //loc_26E4:
   {1, 0xA1}, GAP(4),                        // mov     eax, ds:__cthread_init_routine_ptr
   {2, 0x8B, 0x00},                          // mov     eax, [eax]
   {2, 0x85, 0xC0},                          // test    eax, eax
   {2, 0x74, 0x02},                          // jz      short loc_26F1
   {2, 0xFF, 0xD0},                          // call    eax
-  
+
   //loc_26F1:
   {1, 0xE8}, GAP(4),                        // call    ___keymgr_dwarf2_register_sections
   {3, 0x8D, 0x45, 0xE0},                    // lea     eax, [ebp-20h]
@@ -388,7 +388,7 @@ static AsmFootPrint const SDK104Target104X86v3 =
   {2, 0x74, 0x08},                          // jz      short loc_272E
   {3, 0x89, 0x04, 0x24},                    // mov     [esp], eax
   {1, 0xE8}, GAP(4),                        // call    _atexit
-  
+
   //loc_272E:
   {1, 0xA1}, GAP(4),                        // mov     eax, ds:_errno_ptr
   {6, 0xC7, 0x00, 0x00, 0x00, 0x00, 0x00},  // mov     dword ptr [eax], 0
@@ -419,7 +419,7 @@ static AsmFootPrint const SDK104Target104X86v4 =
   {4, 0x89, 0x5C, 0x24, 0x08},              // mov     [esp+14h+var_C], ebx
   {5, 0xE8, 0x01, 0x00, 0x00, 0x00},        // call    __start
   {1, 0xF4},                                // hlt
-  
+
   //__start:
   {1, 0x55},                                // push    ebp
   {2, 0x89, 0xE5},                          // mov     ebp, esp
@@ -439,7 +439,7 @@ static AsmFootPrint const SDK104Target104X86v4 =
   {1, 0xB8}, GAP(4),                        // mov     eax, 3BF300h
   {2, 0xEB, 0x28},                          // jmp     short loc_2101
   // ---------------------------------------------------------------------------
-  
+
   // loc_20D9:
   {2, 0x8A, 0x08},                          // mov     cl, [eax]
   {2, 0x84, 0xC9},                          // test    cl, cl
@@ -451,7 +451,7 @@ static AsmFootPrint const SDK104Target104X86v4 =
   {2, 0x84, 0xD2},                          // test    dl, dl
   {2, 0x74, 0x10},                          // jz      short loc_20FF
   {3, 0x83, 0xC0, 0x02},                    // add     eax, 2
-  
+
   // loc_20F2:
   {3, 0x80, 0xFA, 0x2F},                    // cmp     dl, 2Fh
   {3, 0x0F, 0x44, 0xD8},                    // cmovz   ebx, eax
@@ -459,15 +459,15 @@ static AsmFootPrint const SDK104Target104X86v4 =
   {1, 0x40},                                // inc     eax
   {2, 0x84, 0xD2},                          // test    dl, dl
   {2, 0x75, 0xF3},                          // jnz     short loc_20F2
-  
+
   // loc_20FF:
   {2, 0x89, 0xD8},                          // mov     eax, ebx
-  
+
   // loc_2101:
-  
+
   {1, 0xA3}, GAP(4),                        // mov     ds:___progname, eax
   {2, 0x89, 0xFB},                          // mov     ebx, edi
-  
+
   // loc_2108:
   {3, 0x83, 0x3B, 0x00},                    // cmp     dword ptr [ebx], 0
   {3, 0x8D, 0x5B, 0x04},                    // lea     ebx, [ebx+4]
@@ -477,14 +477,14 @@ static AsmFootPrint const SDK104Target104X86v4 =
   {2, 0x85, 0xC0},                          // test    eax, eax
   {2, 0x74, 0x02},                          // jz      short loc_211D
   {2, 0xFF, 0xD0},                          // call    eax
-  
+
   // loc_211D:
   {1, 0xA1}, GAP(4),                        // mov     eax, ds:__cthread_init_routine_ptr
   {2, 0x8B, 0x00},                          // mov     eax, [eax]
   {2, 0x85, 0xC0},                          // test    eax, eax
   {2, 0x74, 0x02},                          // jz      short loc_212A
   {2, 0xFF, 0xD0},                          // call    eax
-  
+
   // loc_212A:
   {1, 0xE8}, GAP(4),                        // call    ___keymgr_dwarf2_register_sections
   {3, 0x8D, 0x45, 0xEC},                    // lea     eax, [ebp+var_14]
@@ -501,7 +501,7 @@ static AsmFootPrint const SDK104Target104X86v4 =
   {2, 0x74, 0x08},                          // jz      short loc_2167
   {3, 0x89, 0x04, 0x24},                    // mov     [esp], eax      ; void (*)(void)
   {1, 0xE8}, GAP(4),                        // call    _atexit
-  
+
   // loc_2167:
   {1, 0xA1}, GAP(4),                        // mov     eax, ds:_errno_ptr
   {6, 0xC7, 0x00, 0x00, 0x00, 0x00, 0x00},  // mov     dword ptr [eax], 0
@@ -646,7 +646,7 @@ static AsmFootPrint const SDK105Target104X86 =
   {4, 0x89, 0x5C, 0x24, 0x08},              // mov     [esp+14h+var_C], ebx
   {5, 0xE8, 0x01, 0x00, 0x00, 0x00},        // call    __start
   {1, 0xF4},                                // hlt
-  
+
   //__start:
   {1, 0x55},                                // push    ebp
   {2, 0x89, 0xE5},                          // mov     ebp, esp
@@ -667,26 +667,26 @@ static AsmFootPrint const SDK105Target104X86 =
   {1, 0xB9}, GAP(4),                        // mov     ecx, offset byte_118
   {2, 0xEB, 0x0F},                          // jmp     short loc_6C
   // ---------------------------------------------------------------------------
-  
+
   //loc_5D:
   {3, 0x80, 0xFA, 0x2F},                    // cmp     dl, 2Fh ; '/'
   {3, 0x0F, 0x44, 0xC8},                    // cmovz   ecx, eax
   {1, 0x40},                                // inc     eax
-  
+
   //loc_64:
   {4, 0x0F, 0xB6, 0x50, 0xFF},              // movzx   edx, byte ptr [eax-1]
   {2, 0x84, 0xD2},                          // test    dl, dl
   {2, 0x75, 0xF1},                          // jnz     short loc_5D
-  
+
   //loc_6C:
   {2, 0x89, 0xD8},                          // mov     eax, ebx
   {2, 0x89, 0x0D}, GAP(4),                  // mov     ds:___progname, ecx
   {2, 0xEB, 0x03},                          // jmp     short loc_79
   // ---------------------------------------------------------------------------
-  
+
   //loc_76:
   {3, 0x83, 0xC0, 0x04},                    // add     eax, 4
-  
+
   //loc_79:
   {2, 0x8B, 0x10},                          // mov     edx, [eax]
   {2, 0x85, 0xD2},                          // test    edx, edx
@@ -697,14 +697,14 @@ static AsmFootPrint const SDK105Target104X86 =
   {2, 0x85, 0xC0},                          // test    eax, eax
   {2, 0x74, 0x02},                          // jz      short loc_8F
   {2, 0xFF, 0xD0},                          // call    eax
-  
+
   //loc_8F:
   {1, 0xA1}, GAP(4),                        // mov     eax, ds:__cthread_init_routine_ptr
   {2, 0x8B, 0x00},                          // mov     eax, [eax]
   {2, 0x85, 0xC0},                          // test    eax, eax
   {2, 0x74, 0x02},                          // jz      short loc_9C
   {2, 0xFF, 0xD0},                          // call    eax
-  
+
   //loc_9C:
   {1, 0xE8}, GAP(4),                        // call    near ptr ___keymgr_dwarf2_register_sections
   {3, 0x8D, 0x45, 0xE0},                    // lea     eax, [ebp+var_20]
@@ -721,7 +721,7 @@ static AsmFootPrint const SDK105Target104X86 =
   {2, 0x74, 0x08},                          // jz      short loc_D9
   {3, 0x89, 0x04, 0x24},                    // mov     [esp], eax      ; void (*)(void)
   {1, 0xE8}, GAP(4),                        // call    near ptr _atexit
-  
+
   //loc_D9:
   {1, 0xA1}, GAP(4),                        // mov     eax, ds:_errno_ptr
   {6, 0xC7, 0x00, 0x00, 0x00, 0x00, 0x00},  // mov     dword ptr [eax], 0
@@ -857,7 +857,7 @@ static AsmFootPrint const SDK106Target104X86 =
   {4, 0x89, 0x5C, 0x24, 0x08},              // mov     [esp+14h+var_C], ebx
   {5, 0xE8, 0x01, 0x00, 0x00, 0x00},        // call    __start
   {1, 0xF4},                                // hlt
-  
+
   //__start:
   {1, 0x55},                                // push    ebp
   {2, 0x89, 0xE5},                          // mov     ebp, esp
@@ -878,26 +878,26 @@ static AsmFootPrint const SDK106Target104X86 =
   {1, 0xB9}, GAP(4),                        // mov     ecx, offset byte_118
   {2, 0xEB, 0x0E},                          // jmp     short loc_6A
   // ---------------------------------------------------------------------------
-  
+
   //loc_5C:
   {2, 0x3C, 0x2F},                          // cmp     al, 2Fh ; '/'
   {3, 0x0F, 0x44, 0xCA},                    // cmovz   ecx, edx
   {1, 0x42},                                // inc     edx
-  
+
   //loc_62:
   {4, 0x0F, 0xB6, 0x42, 0xFF},              // movzx   eax, byte ptr [edx-1]
   {2, 0x84, 0xC0},                          // test    al, al
   {2, 0x75, 0xF2},                          // jnz     short loc_5C
-  
+
   //loc_6A:
   {2, 0x89, 0x0D}, GAP(4),                  // mov     ds:___progname, ecx
   {2, 0x89, 0xF3},                          // mov     ebx, esi
   {2, 0xEB, 0x03},                          // jmp     short loc_77
   // ---------------------------------------------------------------------------
-  
+
   //loc_74:
   {3, 0x83, 0xC3, 0x04},                    // add     ebx, 4
-  
+
   //loc_77:
   {2, 0x8B, 0x03},                          // mov     eax, [ebx]
   {2, 0x85, 0xC0},                          // test    eax, eax
@@ -907,14 +907,14 @@ static AsmFootPrint const SDK106Target104X86 =
   {2, 0x85, 0xC0},                          // test    eax, eax
   {2, 0x74, 0x02},                          // jz      short loc_8A
   {2, 0xFF, 0xD0},                          // call    eax
-  
+
   //loc_8A:
   {1, 0xA1}, GAP(4),                        // mov     eax, ds:__cthread_init_routine_ptr
   {2, 0x8B, 0x00},                          // mov     eax, [eax]
   {2, 0x85, 0xC0},                          // test    eax, eax
   {2, 0x74, 0x02},                          // jz      short loc_97
   {2, 0xFF, 0xD0},                          // call    eax
-  
+
   //loc_97:
   {1, 0xE8}, GAP(4),                        // call    near ptr ___keymgr_dwarf2_register_sections
   {3, 0x8D, 0x45, 0xE0},                    // lea     eax, [ebp+var_20]
@@ -931,7 +931,7 @@ static AsmFootPrint const SDK106Target104X86 =
   {2, 0x74, 0x08},                          // jz      short loc_D4
   {3, 0x89, 0x04, 0x24},                    // mov     [esp], eax      ; void (*)(void)
   {1, 0xE8}, GAP(4),                        // call    near ptr _atexit
-  
+
   //loc_D4:
   {1, 0xA1}, GAP(4),                        // mov     eax, ds:_errno_ptr
   {6, 0xC7, 0x00, 0x00, 0x00, 0x00, 0x00},  // mov     dword ptr [eax], 0
@@ -1063,7 +1063,7 @@ static AsmFootPrint const SDK105Target105X86 =
   {3, 0xC1, 0xE3, 0x02},                    // shl     ebx, 2
   {2, 0x01, 0xCB},                          // add     ebx, ecx
   {4, 0x89, 0x5C, 0x24, 0x08},              // mov     [esp+14h+var_C], ebx
-  
+
   //loc_24:
   {2, 0x8B, 0x03},                          // mov     eax, [ebx]
   {3, 0x83, 0xC3, 0x04},                    // add     ebx, 4
@@ -1100,9 +1100,9 @@ static AsmFootPrint const SDK105Target105X86_64 =
   {4, 0x48, 0x83, 0xC1, 0x08},              // add     rcx, 8
   {1, 0xE8}, GAP(4),                        // call    near ptr _main
   {2, 0x89, 0xC7},                          // mov     edi, eax
-  {1, 0xE8}, GAP(4),                        // call    near ptr _exit  
+  {1, 0xE8}, GAP(4),                        // call    near ptr _exit
 };
-  
+
 //==================================
 // SDK:10.6 DeployTarget:10.5
 // MacOSX10.6.sdk/usr/lib/crt1.10.5.o
@@ -1122,7 +1122,7 @@ static AsmFootPrint const SDK106Target105X86 =
   {3, 0xC1, 0xE3, 0x02},                    // shl     ebx, 2
   {2, 0x01, 0xCB},                          // add     ebx, ecx
   {4, 0x89, 0x5C, 0x24, 0x08},              // mov     [esp+14h+var_C], ebx
-  
+
   //loc_23:
   {2, 0x8B, 0x03},                          // mov     eax, [ebx]
   {3, 0x83, 0xC3,0x04},                     // add     ebx, 4
@@ -1151,7 +1151,7 @@ static AsmFootPrint const SDK106Target104X86v2 =
   {4,  0x89, 0x5C, 0x24, 0x08},             // mov     [esp+14h+var_C], ebx
   {5,  0xE8, 0x01, 0x00, 0x00, 0x00},       // call    __start
   {1,  0xF4},                               // hlt
-  
+
   //__start:
   {1,  0x55},                               // push    ebp
   {2,  0x89, 0xE5},                         // mov     ebp, esp
@@ -1170,29 +1170,29 @@ static AsmFootPrint const SDK106Target104X86v2 =
   {2,  0x85, 0xC0},                         // test    eax, eax
   {2,  0x74, 0x18},                         // jz      short loc_2B8F
   {2,  0xEB, 0x02},                         // jmp     short loc_2B7B
-  
+
   // loc_2B79
   {2,  0x89, 0xC8},                         // mov     eax, ecx
-  
+
   // loc_2B7B:
   {3,  0x8D, 0x48, 0x01},                   // lea     ecx, [eax+1]
   {2,  0xEB, 0x06},                         // jmp     short loc_2B86
-  
+
   // loc_2BB0:
   {3,  0x80, 0xFA, 0x2F},                   // cmp     dl, 2Fh
   {2,  0x74, 0xF4},                         // jz      short loc_2B79
   {1,  0x41},                               // inc     ecx
-  
+
   // loc_2B86:
   {3,  0x8A, 0x51, 0xFF},                   // mov     dl, [ecx-1]
   {2,  0x84, 0xD2},                         // test    dl, dl
   {2,  0x75, 0xF3},                         // jnz     short loc_2B80
   {2,  0x89, 0xC1},                         // mov     ecx, eax
-  
+
   // loc_2B8F:
   {2,  0x89, 0x0D}, GAP(4),                 // mov     ds:___progname, ecx
   {2,  0x89, 0xF3},                         // mov     ebx, esi
-  
+
   // loc_2B97:
   {3,  0x83, 0x3B, 0x00},                   // cmp     dword ptr [ebx], 0
   {3,  0x8D, 0x5B, 0x04},                   // lea     ebx, [ebx+4]
@@ -1202,14 +1202,14 @@ static AsmFootPrint const SDK106Target104X86v2 =
   {2,  0x85, 0xC0},                         // test    eax, eax
   {2,  0x74, 0x02},                         // jz      short loc_2BAC
   {2,  0xFF, 0xD0},                         // call    eax
-  
+
   // loc_2BAC:
   {1,  0xA1}, GAP(4),                       // mov     eax, ds:__cthread_init_routine_ptr
   {2,  0x8B, 0x00},                         // mov     eax, [eax]
   {2,  0x85, 0xC0},                         // test    eax, eax
   {2,  0x74, 0x02},                         // jz      short loc_2BB9
   {2,  0xFF, 0xD0},                         // call    eax
-  
+
   // loc_2BB9:
   {1,  0xE8}, GAP(4),                       // call    ___keymgr_dwarf2_register_sections
   {3,  0x8D, 0x45, 0xEC},                   // lea     eax, [ebp+var_14]
@@ -1226,7 +1226,7 @@ static AsmFootPrint const SDK106Target104X86v2 =
   {2,  0x74, 0x08},                         // jz      short loc_2BF6
   {3,  0x89, 0x04, 0x24},                   // mov     [esp], eax      ; void (*)(void)
   {1,  0xE8}, GAP(4),                       // call    _atexit
-  
+
   // loc_2BF6:
   {1,  0xA1}, GAP(4),                       // mov     eax, ds:_errno_ptr
   {6,  0xC7, 0x00, 0x00, 0x00, 0x00, 0x00}, // mov     dword ptr [eax], 0
@@ -1251,21 +1251,20 @@ static AsmFootPrint const SDK106Target104X86v2 =
 //SDK106Target106X86 == SDK106Target105X86;
 //SDK106Target106X86_64 == SDK106Target105X86_64;
 
-//==============================================================================
+//=========================================================================
 @implementation MachOLayout (CRTFootPrints)
 
-//------------------------------------------------------------------------------
-- (bool) matchAsmAtOffset:(uint32_t)offset 
-             asmFootPrint:(const AsmFootPrint)footprint 
+//-------------------------------------------------------------------------
+- (bool) matchAsmAtOffset:(uint32_t)offset
+             asmFootPrint:(const AsmFootPrint)footprint
                 lineCount:(NSUInteger)lineCount
 {
   uint8_t const * data = ((uint8_t *)[dataController.fileData bytes]) + offset;
-  
-  for (NSUInteger i = 0; i < lineCount; ++i)
-  {
+
+  for (NSUInteger i = 0U; i < lineCount; ++i) {
     uint8_t const * asmEntry = footprint[i];
     int size = asmEntry[0];
-    
+
     // is it a gap to skip ?
     if (size == 0)
     {
@@ -1277,87 +1276,67 @@ static AsmFootPrint const SDK106Target104X86v2 =
     }
     data += size;
   }
-  
+
   return true;
 }
 
-//------------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (void) determineRuntimeVersion
 {
-  if (entryPoint == 0)
-  {
+  if (entryPoint == 0UL) {
     return; // not an executable, no entry point, or cannot detect
   }
-  
-  // find file offset of the entry point
-  uint32_t offset = [self is64bit] == NO 
-                      ? [self RVAToFileOffset:entryPoint] 
-                      : [self RVA64ToFileOffset:entryPoint];
-  
+
+  // find file offset of the entry point:
+  uint32_t offset = (([self is64bit] == NO)
+                      ? [self RVAToFileOffset:(uint32_t)entryPoint]
+                      : [self RVA64ToFileOffset:entryPoint]);
+
   NSLog(@"%@: file offset of OEP: 0x%X", self, offset);
-  
-  uint32_t dataLength = [dataController.fileData length];
-  
-  if (offset >= dataLength)
-  {
+
+  uint32_t dataLength = (uint32_t)[dataController.fileData length];
+
+  if (offset >= dataLength) {
     return;
   }
-  
-  // test against footprints
-  if ([self is64bit] == NO)
-  {
-    if (MATCHASM(SDK104Target104X86v1))
-    {
+
+  // test against footprints:
+  if ([self is64bit] == NO) {
+    if (MATCHASM(SDK104Target104X86v1)) {
       NSLog(@"SDK104Target104X86v1 matched");
       rootNode.caption = [rootNode.caption stringByAppendingString:@" [SDK10.4 Target10.4]"];
       return;
-    }
-    else if (MATCHASM(SDK104Target104X86v2))
-    {
+    } else if (MATCHASM(SDK104Target104X86v2)) {
       NSLog(@"SDK104Target104X86v2 matched");
       rootNode.caption = [rootNode.caption stringByAppendingString:@" [SDK10.4 Target10.4]"];
       return;
-    }
-    else if (MATCHASM(SDK104Target104X86v3))
-    {
+    } else if (MATCHASM(SDK104Target104X86v3)) {
       NSLog(@"SDK104Target104X86v3 matched");
       rootNode.caption = [rootNode.caption stringByAppendingString:@" [SDK10.4 Target10.4]"];
       return;
-    }
-    else if (MATCHASM(SDK104Target104X86v4))
-    {
+    } else if (MATCHASM(SDK104Target104X86v4)) {
       NSLog(@"SDK104Target104X86v4 matched");
       rootNode.caption = [rootNode.caption stringByAppendingString:@" [SDK10.4 Target10.4]"];
       return;
-    }
-    else if (MATCHASM(SDK105Target104X86))
-    {
+    } else if (MATCHASM(SDK105Target104X86)) {
       NSLog(@"SDK105Target104X86 matched");
       rootNode.caption = [rootNode.caption stringByAppendingString:@" [SDK10.5 Target10.4]"];
       return;
-    }
-    else if (MATCHASM(SDK105Target105X86))
-    {
+    } else if (MATCHASM(SDK105Target105X86)) {
       NSLog(@"SDK105Target105X86 matched");
       rootNode.caption = [rootNode.caption stringByAppendingString:@" [SDK10.5 Target10.5]"];
       return;
-    }
-    else if (MATCHASM(SDK106Target104X86) || MATCHASM(SDK106Target104X86v2))
-    {
+    } else if (MATCHASM(SDK106Target104X86) || MATCHASM(SDK106Target104X86v2)) {
       NSLog(@"SDK106Target104X86 matched");
       rootNode.caption = [rootNode.caption stringByAppendingString:@" [SDK10.6 Target10.4]"];
       return;
-    }
-    else if (MATCHASM(SDK106Target105X86))
-    {
+    } else if (MATCHASM(SDK106Target105X86)) {
       NSLog(@"SDK106Target105X86 matched");
-      
-      for (CommandVector::const_iterator cmdIter = commands.begin(); cmdIter != commands.end(); ++cmdIter)
-      {
+
+      for (CommandVector::const_iterator cmdIter = commands.begin(); cmdIter != commands.end(); ++cmdIter) {
         struct load_command const * load_command = (struct load_command const *)(*cmdIter);
-        if (load_command->cmd == LC_DYLD_INFO_ONLY)
-        {
-          rootNode.caption = [rootNode.caption stringByAppendingString:@" [SDK10.6 Target10.6]"]; 
+        if (load_command->cmd == LC_DYLD_INFO_ONLY) {
+          rootNode.caption = [rootNode.caption stringByAppendingString:@" [SDK10.6 Target10.6]"];
           NSLog(@"LC_DYLD_INFO_ONLY  ==> target10.6");
           return;
         }
@@ -1365,49 +1344,39 @@ static AsmFootPrint const SDK106Target104X86v2 =
       rootNode.caption = [rootNode.caption stringByAppendingString:@" [SDK10.6 Target10.5]"];
       return;
     }
-  }
-  else
-  {
-    if (MATCHASM(SDK104Target104X86_64))
-    {
+  } else {
+    if (MATCHASM(SDK104Target104X86_64)) {
       NSLog(@"SDK104Target104X86_64 matched");
       rootNode.caption = [rootNode.caption stringByAppendingString:@" [SDK10.4 Target10.4]"];
       return;
-    }
-    else if (MATCHASM(SDK105Target104X86_64))
-    {
+    } else if (MATCHASM(SDK105Target104X86_64)) {
       NSLog(@"SDK105Target104X86_64 matched");
       rootNode.caption = [rootNode.caption stringByAppendingString:@" [SDK10.5 Target10.4]"];
       return;
-    }
-    else if (MATCHASM(SDK106Target104X86_64))
-    {
+    } else if (MATCHASM(SDK106Target104X86_64)) {
       NSLog(@"SDK106Target104X86_64 matched");
       rootNode.caption = [rootNode.caption stringByAppendingString:@" [SDK10.6 Target10.4]"];
       return;
-    }
-    else if (MATCHASM(SDK105Target105X86_64))
-    {
+    } else if (MATCHASM(SDK105Target105X86_64)) {
       NSLog(@"SDK105Target105X86_64 matched");
-      
-      for (CommandVector::const_iterator cmdIter = commands.begin(); cmdIter != commands.end(); ++cmdIter)
-      {
+
+      for (CommandVector::const_iterator cmdIter = commands.begin(); cmdIter != commands.end(); ++cmdIter) {
         struct load_command const * load_command = (struct load_command const *)(*cmdIter);
-        if (load_command->cmd == LC_DYLD_INFO_ONLY)
-        {
+        if (load_command->cmd == LC_DYLD_INFO_ONLY) {
           NSLog(@"LC_DYLD_INFO_ONLY  ==> target10.6");
-          rootNode.caption = [rootNode.caption stringByAppendingString:@" [SDK10.6]"]; 
+          rootNode.caption = [rootNode.caption stringByAppendingString:@" [SDK10.6]"];
           return;
         }
       }
       rootNode.caption = [rootNode.caption stringByAppendingString:@" [SDK10.5]"];
       return;
     }
-    
+
   }
-  
+
 }
-//------------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 
 @end
 
+/* EOF */

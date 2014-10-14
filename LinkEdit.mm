@@ -16,7 +16,7 @@ using namespace std;
 //============================================================================
 @implementation MachOLayout (LinkEdit)
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *) createRelocNode:(MVNode *)parent
                      caption:(NSString *)caption
                     location:(uint32_t)location
@@ -281,7 +281,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *) createReloc64Node:(MVNode *)parent
                        caption:(NSString *)caption
                       location:(uint32_t)location
@@ -633,7 +633,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *) createSymbolsNode:parent
                        caption:(NSString *)caption
                       location:(uint32_t)location
@@ -794,7 +794,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *) createSymbols64Node:parent
                          caption:(NSString *)caption
                         location:(uint32_t)location
@@ -949,7 +949,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *) createReferencesNode:parent
                           caption:(NSString *)caption
                          location:(uint32_t)location
@@ -1003,7 +1003,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *) createIndirectNode:parent
                         caption:(NSString *)caption
                        location:(uint32_t)location
@@ -1128,7 +1128,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *) createIndirect64Node:parent
                           caption:(NSString *)caption
                          location:(uint32_t)location
@@ -1253,7 +1253,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *) createTOCNode:parent
                    caption:(NSString *)caption
                   location:(uint32_t)location
@@ -1304,7 +1304,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *) createTOC64Node:parent
                      caption:(NSString *)caption
                     location:(uint32_t)location
@@ -1355,7 +1355,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *) createModulesNode:parent
                        caption:(NSString *)caption
                       location:(uint32_t)location
@@ -1467,7 +1467,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *) createModules64Node:parent
                          caption:(NSString *)caption
                         location:(uint32_t)location
@@ -1579,7 +1579,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *) createTwoLevelHintsNode:parent
                              caption:(NSString *)caption
                             location:(uint32_t)location
@@ -1627,7 +1627,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *) createSplitSegmentNode:parent
                             caption:(NSString *)caption
                            location:(uint32_t)location
@@ -1697,7 +1697,7 @@ using namespace std;
   return node;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (MVNode *) createFunctionStartsNode:parent
                               caption:(NSString *)caption
                              location:(uint32_t)location

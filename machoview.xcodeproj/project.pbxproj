@@ -74,16 +74,6 @@
 		A5186D5C19ED88620056EA28 /* symbol.c in Sources */ = {isa = PBXBuildFile; fileRef = A5186D4919ED87CD0056EA28 /* symbol.c */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		A5186D5219ED88360056EA28 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = A5186D4D19ED87F10056EA28 /* libdisasm */;
-			remoteInfo = libdisasm;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXCopyFilesBuildPhase section */
 		3CACF74A11CBCC69006BCD3F /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -119,7 +109,7 @@
 		3C0F958711F658BF0070A2FE /* greenApple.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = greenApple.icns; sourceTree = "<group>"; };
 		3C0F958811F658BF0070A2FE /* redApple.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = redApple.icns; sourceTree = "<group>"; };
 		3C1163F013D5B88D007B4A6E /* stop.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = stop.png; sourceTree = "<group>"; };
-		3C30845A11FDAF6F008A270F /* createdmg */ = {isa = PBXFileReference; explicitFileType = text.script; fileEncoding = 4; path = createdmg; sourceTree = "<group>"; };
+		3C30845A11FDAF6F008A270F /* createdmg.sh */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 4; path = createdmg.sh; sourceTree = "<group>"; };
 		3C34A82914892FF1005B53F6 /* FatLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FatLayout.h; sourceTree = "<group>"; };
 		3C34A82A14892FF1005B53F6 /* FatLayout.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.objcpp; path = FatLayout.mm; sourceTree = "<group>"; };
 		3C3EC88E13B66E8900ECCDB2 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/Preferences.xib; sourceTree = "<group>"; };
@@ -176,7 +166,7 @@
 		A5186D3619ED86DF0056EA28 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/Layout.nib; sourceTree = "<group>"; };
 		A5186D3819ED86E50056EA28 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/Preferences.nib; sourceTree = "<group>"; };
 		A5186D4019ED87BE0056EA28 /* disasm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = disasm.h; sourceTree = "<group>"; };
-		A5186D4219ED87CD0056EA28 /* arm_disasm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = arm_disasm.c; sourceTree = "<group>"; };
+		A5186D4219ED87CD0056EA28 /* arm_disasm.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.c; path = arm_disasm.c; sourceTree = "<group>"; tabWidth = 8; usesTabs = 0; };
 		A5186D4319ED87CD0056EA28 /* arm_disasm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = arm_disasm.h; sourceTree = "<group>"; };
 		A5186D4419ED87CD0056EA28 /* bytesex.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = bytesex.c; sourceTree = "<group>"; };
 		A5186D4519ED87CD0056EA28 /* i386_disasm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = i386_disasm.c; sourceTree = "<group>"; };
@@ -291,7 +281,7 @@
 			isa = PBXGroup;
 			children = (
 				3CE90DFC11F6107600543402 /* README.md */,
-				3C30845A11FDAF6F008A270F /* createdmg */,
+				3C30845A11FDAF6F008A270F /* createdmg.sh */,
 				A5186D3F19ED87AD0056EA28 /* disasm */,
 				080E96DDFE201D6D7F000001 /* machoview */,
 				3C78CB26139EE44B006C9591 /* mach-o */,
@@ -429,7 +419,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				A5186D5319ED88360056EA28 /* PBXTargetDependency */,
 			);
 			name = "MachOView (SL)";
 			productInstallPath = "$(HOME)/Applications";
@@ -630,14 +619,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		A5186D5319ED88360056EA28 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = A5186D4D19ED87F10056EA28 /* libdisasm */;
-			targetProxy = A5186D5219ED88360056EA28 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		3C0F957E11F6589D0070A2FE /* InfoPlist.strings */ = {
