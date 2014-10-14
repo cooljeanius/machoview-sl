@@ -15,6 +15,8 @@
     MVPreferenceController * preferenceController;
 }
 
+-(void) printStat;
+
 - (IBAction)showPreferencePanel:(id)sender;
 
 @end

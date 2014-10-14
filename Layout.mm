@@ -16,23 +16,24 @@
 
 @synthesize dataController, backgroundThread, archiver;
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (id)init
 {
   NSAssert(NO, @"plain init is not allowed");
   return nil;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (id)initWithDataController:(MVDataController *)dc rootNode:(MVNode *)node
 {
-  if (self = [super init]) 
-  {
+  if ((self = [super init])) {
     dataController = dc;
     rootNode = node;
-    imageOffset = node.dataRange.location;
-    backgroundThread = [[NSThread alloc] initWithTarget:self selector:@selector(doBackgroundTasks) object:nil];
-    
+    imageOffset = (uint32_t)node.dataRange.location;
+    backgroundThread = [[NSThread alloc] initWithTarget:self
+                                               selector:@selector(doBackgroundTasks)
+                                                 object:nil];
+
     NSString * swapPath = NSSTRING(tempnam(CSTRING([MVDocument temporaryDirectory]),
                                            CSTRING([[[dataController fileName] lastPathComponent] stringByAppendingString:@"."])));
 
@@ -59,30 +60,30 @@
   }
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (BOOL)is64bit
 {
   return NO;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (void)doMainTasks
 {
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (void)doBackgroundTasks
 {
   [archiver halt];
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (NSString *)convertToRVA: (NSString *)offsetStr
 {
   return @"";
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 // Depth-first Traversal of nodes
 //-----------------------------------------------------------------------------
 - (MVNode *)findNodeByUserInfo:(NSDictionary *)userInfo
@@ -90,7 +91,7 @@
   [dataController.treeLock lock];
   MVNode * node = [rootNode findNodeByUserInfo:userInfo];
   [dataController.treeLock unlock];
-  
+
   return node;
 }
 

@@ -24,10 +24,10 @@ typedef std::map<uint32_t,std::pair<uint64_t,uint64_t> >        SegmentInfoMap; 
 typedef std::map<uint64_t,std::pair<uint32_t,NSDictionary *> >  SectionInfoMap;     // address    --> <fileOffset,sectionUserInfo>
 typedef std::map<uint64_t,uint64_t>                             ExceptionFrameMap;  // LSDA_addr  --> PCBegin_addr
 
-@interface MachOLayout : MVLayout 
+@interface MachOLayout : MVLayout
 {
   uint64_t                entryPoint;       // instruction pointer in thread command
-  
+
   CommandVector           commands;         // load commands
   SegmentVector           segments;         // segment entries for 32-bit architectures
   Segment64Vector         segments_64;      // segment entries for 64-bit architectures
@@ -39,12 +39,12 @@ typedef std::map<uint64_t,uint64_t>                             ExceptionFrameMa
   ModuleVector            modules;          // module table entries in a dynamic shared library for 32-bit architectures
   Module64Vector          modules_64;       // module table entries in a dynamic shared library for 64-bit architectures
   char const *            strtab;           // pointer to the string table
-  
+
   RelocMap                relocMap;         // section relocations
   SegmentInfoMap          segmentInfo;      // segment info lookup table by offset
   SectionInfoMap          insertChild;      // section info lookup table by address
   ExceptionFrameMap       lsdaInfo;         // LSDA info lookup table by address
-  
+
   NSMutableDictionary *   symbolNames;      // symbol names by address
 }
 
@@ -77,6 +77,8 @@ typedef std::map<uint64_t,uint64_t>                             ExceptionFrameMa
 - (uint32_t)RVA64ToFileOffset:(uint64_t)rva64;
 
 - (void)addRelocAtFileOffset:(uint32_t)offset withLength:(uint32_t)length andValue:(uint64_t)value;
+
+- (NSString *)convertToRVA: (NSString *)offsetStr;
 
 - (BOOL)isDylibStub;
 

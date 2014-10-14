@@ -1,0 +1,10 @@
+Original Creator:
+	Peter Saghelyi
+
+Original attempt to backport to Snow Leopard:
+	Andre Berg
+
+This Fork:
+	Eric Gallager
+
+Default Credits.rtf fields removed in plain-text version

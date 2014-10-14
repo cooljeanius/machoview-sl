@@ -1,15 +1,28 @@
-//
-// Prefix header for all source files of the 'Mach-O Browser' target in the 'Mach-O Browser' project
-//
+/* Prefix.pch -*- Objective-C++ -*-
+ * Prefix header for all source files of the 'Mach-O Browser' target
+ * in the 'Mach-O Browser' project.
+ */
+
+#ifndef __MACHO_VIEW_PREFIX_PCH__
+#define __MACHO_VIEW_PREFIX_PCH__
 
 #ifdef __OBJC__
     #import <Cocoa/Cocoa.h>
-#endif
+#endif /* __OBJC__ */
 
-#include <string>
-#include <vector>
-#include <set>
-#include <map>
+#ifdef __cplusplus
+    #include <string>
+    #include <vector>
+    #include <set>
+    #include <map>
+#else
+    #if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+        #warning "You should precompile your prefix header as C++ to include all necessary C++ headers."
+    #endif /* __GNUC__ && !__STRICT_ANSI__ */
+#endif /* __cplusplus */
+
+#include <Availability.h>
+#include <AvailabilityMacros.h>
 
 #include <mach-o/arch.h>
 #include <mach-o/loader.h>
@@ -24,3 +37,23 @@
 
 #include <libkern/OSAtomic.h>
 #include <cxxabi.h>
+
+/* according to the internet, the correct way to do this would be with
+ * feature test macros, but old compilers fail to understand those... */
+#if defined(MAC_OS_X_VERSION_MIN_REQUIRED)
+# if !defined(MAC_OS_X_VERSION_10_7) || \
+     (defined(MAC_OS_X_VERSION_10_7) && (MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_7))
+#  ifndef NO_OBJC_ARC
+#   define NO_OBJC_ARC
+#  endif /* !NO_OBJC_ARC */
+#  if defined(NO_OBJC_ARC) && defined(__GNUC__) && !defined(__STRICT_ANSI__) && 0
+#   warning "Automated Reference Counting will be unavailable."
+#  endif /* NO_OBJC_ARC && __GNUC__ && !__STRICT_ANSI__ && 0 */
+# endif /* 10.6 and earlier */
+#endif /* MAC_OS_X_VERSION_MIN_REQUIRED */
+
+#ifndef __unsafe_unretained
+# define __unsafe_unretained /* (nothing) */
+#endif /* !__unsafe_unretained */
+
+#endif /* !__MACHO_VIEW_PREFIX_PCH__ */

@@ -16,7 +16,7 @@ struct obj const * obj = (struct obj const *)((uint8_t *)[dataController.realDat
 @class MVNode;
 
 
-@interface MVLayout : NSObject 
+@interface MVLayout : NSObject
 {
   MVNode *              rootNode;
   MVDataController *    __unsafe_unretained dataController;
@@ -25,7 +25,11 @@ struct obj const * obj = (struct obj const *)((uint8_t *)[dataController.realDat
   MVArchiver *          archiver;
 }
 
+#ifndef NO_OBJC_ARC
 @property(nonatomic,unsafe_unretained,readonly) MVDataController * dataController;
+#else
+@property(nonatomic,assign,readonly) MVDataController * dataController;
+#endif /* !NO_OBJC_ARC */
 @property(nonatomic,readonly) NSThread * backgroundThread;
 @property(nonatomic,readonly) MVArchiver * archiver;
 

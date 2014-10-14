@@ -21,7 +21,7 @@
  *
  * @APPLE_LICENSE_HEADER_END@
  */
- 
+
 
 #ifndef __COMPACT_UNWIND_ENCODING__
 #define __COMPACT_UNWIND_ENCODING__
@@ -29,7 +29,7 @@
 #include <stdint.h>
 
 
-// 
+//
 // Each final linked mach-o image has an optional __TEXT, __unwind_info section.
 // This section is much smaller and faster to use than the __eh_frame section.
 //
@@ -39,7 +39,7 @@
 //
 // Compilers usually emit standard Dwarf FDEs.  The linker recognizes standard FDEs and
 // synthesizes a matching compact_unwind_encoding_t and adds it to the __unwind_info table.
-// It is also possible for the compiler to emit __unwind_info entries for functions that 
+// It is also possible for the compiler to emit __unwind_info entries for functions that
 // have different unwind requirements at different ranges in the function.
 //
 typedef uint32_t compact_unwind_encoding_t;
@@ -49,7 +49,7 @@ typedef uint32_t compact_unwind_encoding_t;
 //
 // The __unwind_info section is laid out for an efficient two level lookup.
 // The header of the section contains a coarse index that maps function address
-// to the page (4096 byte block) containing the unwind info for that function.  
+// to the page (4096 byte block) containing the unwind info for that function.
 //
 
 #define UNWIND_SECTION_VERSION 1
@@ -68,14 +68,14 @@ struct unwind_info_section_header
     // unwind_info_section_header_lsda_index_entry[]
 };
 
-struct unwind_info_section_header_index_entry 
+struct unwind_info_section_header_index_entry
 {
     uint32_t        functionOffset;
     uint32_t        secondLevelPagesSectionOffset;  // section offset to start of regular or compress page
     uint32_t        lsdaIndexArraySectionOffset;    // section offset to start of lsda_index array for this range
 };
 
-struct unwind_info_section_header_lsda_index_entry 
+struct unwind_info_section_header_lsda_index_entry
 {
     uint32_t        functionOffset;
     uint32_t        lsdaOffset;
@@ -85,10 +85,10 @@ struct unwind_info_section_header_lsda_index_entry
 // There are two kinds of second level index pages: regular and compressed.
 // A compressed page can hold up to 1021 entries, but it cannot be used
 // if too many different encoding types are used.  The regular page holds
-// 511 entries.  
+// 511 entries.
 //
 
-struct unwind_info_regular_second_level_entry 
+struct unwind_info_regular_second_level_entry
 {
     uint32_t                    functionOffset;
     compact_unwind_encoding_t    encoding;
@@ -111,7 +111,7 @@ struct unwind_info_compressed_second_level_page_header
     uint16_t    entryCount;
     uint16_t    encodingsPageOffset;
     uint16_t    encodingsCount;
-    // 32-bit entry array    
+    // 32-bit entry array
     // encodings array
 };
 
@@ -124,7 +124,7 @@ struct unwind_info_compressed_second_level_page_header
 enum {
     UNWIND_IS_NOT_FUNCTION_START           = 0x80000000,
     UNWIND_HAS_LSDA                        = 0x40000000,
-    UNWIND_PERSONALITY_MASK                = 0x30000000,
+    UNWIND_PERSONALITY_MASK                = 0x30000000/*,*/
 };
 
 
@@ -151,7 +151,7 @@ enum {
     UNWIND_X86_64_MODE_STACK_IMMD                   = 0x02000000,
     UNWIND_X86_64_MODE_STACK_IND                    = 0x03000000,
     UNWIND_X86_64_MODE_DWARF                        = 0x04000000,
-    
+
     UNWIND_X86_64_RBP_FRAME_REGISTERS               = 0x00007FFF,
     UNWIND_X86_64_RBP_FRAME_OFFSET                  = 0x00FF0000,
 
@@ -160,7 +160,7 @@ enum {
     UNWIND_X86_64_FRAMELESS_STACK_REG_COUNT         = 0x00001C00,
     UNWIND_X86_64_FRAMELESS_STACK_REG_PERMUTATION   = 0x000003FF,
 
-    UNWIND_X86_64_DWARF_SECTION_OFFSET              = 0x03FFFFFF,
+    UNWIND_X86_64_DWARF_SECTION_OFFSET              = 0x03FFFFFF/*,*/
 };
 
 enum {
@@ -170,7 +170,7 @@ enum {
     UNWIND_X86_64_REG_R13        = 3,
     UNWIND_X86_64_REG_R14        = 4,
     UNWIND_X86_64_REG_R15        = 5,
-    UNWIND_X86_64_REG_RBP        = 6,
+    UNWIND_X86_64_REG_RBP        = 6/*,*/
 };
 
 
@@ -197,16 +197,16 @@ enum {
     UNWIND_X86_MODE_STACK_IMMD                   = 0x02000000,
     UNWIND_X86_MODE_STACK_IND                    = 0x03000000,
     UNWIND_X86_MODE_DWARF                        = 0x04000000,
-    
+
     UNWIND_X86_EBP_FRAME_REGISTERS               = 0x00007FFF,
     UNWIND_X86_EBP_FRAME_OFFSET                  = 0x00FF0000,
-    
+
     UNWIND_X86_FRAMELESS_STACK_SIZE              = 0x00FF0000,
     UNWIND_X86_FRAMELESS_STACK_ADJUST            = 0x0000E000,
     UNWIND_X86_FRAMELESS_STACK_REG_COUNT         = 0x00001C00,
     UNWIND_X86_FRAMELESS_STACK_REG_PERMUTATION   = 0x000003FF,
-    
-    UNWIND_X86_DWARF_SECTION_OFFSET              = 0x03FFFFFF,
+
+    UNWIND_X86_DWARF_SECTION_OFFSET              = 0x03FFFFFF/*,*/
 };
 
 enum {
@@ -216,7 +216,7 @@ enum {
     UNWIND_X86_REG_EDX      = 3,
     UNWIND_X86_REG_EDI      = 4,
     UNWIND_X86_REG_ESI      = 5,
-    UNWIND_X86_REG_EBP      = 6,
+    UNWIND_X86_REG_EBP      = 6/*,*/
 };
 
 

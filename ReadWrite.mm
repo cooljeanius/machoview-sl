@@ -163,24 +163,23 @@
 - (int64_t)read_sleb128:(NSRange &)range lastReadHex:(NSString **)lastReadHex
 {
   range.location = NSMaxRange(range);
-  uint8_t * p = (uint8_t *)[dataController.fileData bytes] + range.location, *start = p;
-  
-  int64_t result = 0;
+  uint8_t * p = ((uint8_t *)[dataController.fileData bytes] + range.location), *start = p;
+
+  int64_t result = 0L;
   int bit = 0;
   uint8_t byte;
-  
+
   do {
     byte = *p++;
     result |= ((byte & 0x7f) << bit);
     bit += 7;
   } while (byte & 0x80);
-  
-  // sign extend negative numbers
-  if ( (byte & 0x40) != 0 )
-  {
-    result |= (-1LL) << bit;
+
+  // sign extend negative numbers:
+  if ((byte & 0x40) != 0U) {
+    result |= ((-1LL) << bit);
   }
-  
+
   range.length = (p - start);
   if (lastReadHex) *lastReadHex = [self getHexStr:range];
   return result;
@@ -191,22 +190,22 @@
 {
   range.location = NSMaxRange(range);
   uint8_t * p = (uint8_t *)[dataController.fileData bytes] + range.location, *start = p;
-  
+
   uint64_t result = 0;
   int bit = 0;
-  
+
   do {
     uint64_t slice = *p & 0x7f;
-    
+
     if (bit >= 64 || slice << bit >> bit != slice)
       [NSException raise:@"uleb128 error" format:@"uleb128 too big"];
     else {
       result |= (slice << bit);
       bit += 7;
     }
-  } 
+  }
   while (*p++ & 0x80);
-  
+
   range.length = (p - start);
   if (lastReadHex) *lastReadHex = [self getHexStr:range];
   return result;
@@ -215,56 +214,56 @@
 // ----------------------------------------------------------------------------
 - (void) write_uint8:(NSUInteger)location data:(uint8_t)data
 {
-  [dataController.fileData replaceBytesInRange:NSMakeRange(location,sizeof(uint8_t)) 
+  [dataController.fileData replaceBytesInRange:NSMakeRange(location,sizeof(uint8_t))
                                      withBytes:&data];
 }
 
 // ----------------------------------------------------------------------------
 - (void) write_uint16:(NSUInteger)location data:(uint16_t)data
 {
-  [dataController.fileData replaceBytesInRange:NSMakeRange(location,sizeof(uint16_t)) 
+  [dataController.fileData replaceBytesInRange:NSMakeRange(location,sizeof(uint16_t))
                                      withBytes:&data];
 }
 
 // ----------------------------------------------------------------------------
 - (void) write_uint32:(NSUInteger)location data:(uint32_t)data
 {
-  [dataController.fileData replaceBytesInRange:NSMakeRange(location,sizeof(uint32_t)) 
+  [dataController.fileData replaceBytesInRange:NSMakeRange(location,sizeof(uint32_t))
                                      withBytes:&data];
 }
 
 // ----------------------------------------------------------------------------
 - (void) write_uint64:(NSUInteger)location data:(uint64_t)data
 {
-  [dataController.fileData replaceBytesInRange:NSMakeRange(location,sizeof(uint64_t)) 
+  [dataController.fileData replaceBytesInRange:NSMakeRange(location,sizeof(uint64_t))
                                      withBytes:&data];
 }
 
 // ----------------------------------------------------------------------------
 - (void) write_int8:(NSUInteger)location data:(int8_t)data
 {
-  [dataController.fileData replaceBytesInRange:NSMakeRange(location,sizeof(int8_t)) 
+  [dataController.fileData replaceBytesInRange:NSMakeRange(location,sizeof(int8_t))
                                      withBytes:&data];
 }
 
 // ----------------------------------------------------------------------------
 - (void) write_int16:(NSUInteger)location data:(int16_t)data
 {
-  [dataController.fileData replaceBytesInRange:NSMakeRange(location,sizeof(int16_t)) 
+  [dataController.fileData replaceBytesInRange:NSMakeRange(location,sizeof(int16_t))
                                      withBytes:&data];
 }
 
 // ----------------------------------------------------------------------------
 - (void) write_int32:(NSUInteger)location data:(int32_t)data
 {
-  [dataController.fileData replaceBytesInRange:NSMakeRange(location,sizeof(int32_t)) 
+  [dataController.fileData replaceBytesInRange:NSMakeRange(location,sizeof(int32_t))
                                      withBytes:&data];
 }
 
 // ----------------------------------------------------------------------------
 - (void) write_int64:(NSUInteger)location data:(int64_t)data
 {
-  [dataController.fileData replaceBytesInRange:NSMakeRange(location,sizeof(int64_t)) 
+  [dataController.fileData replaceBytesInRange:NSMakeRange(location,sizeof(int64_t))
                                      withBytes:&data];
 }
 
@@ -285,7 +284,7 @@
 {
   assert(false);
   /*
-   uint8_t * 
+   uint8_t *
    writeSLEB128(uint8_t *p, int64_t value)
    {
     bool isNeg = ( value < 0 );
@@ -294,14 +293,14 @@
     do {
       byte = value & 0x7F;
       value = value >> 7;
-      if ( isNeg ) 
+      if ( isNeg )
         more = ( (value != -1) || ((byte & 0x40) == 0) );
       else
         more = ( (value != 0) || ((byte & 0x40) != 0) );
       if ( more )
         byte |= 0x80;
       *(p++) = byte;
-    } 
+    }
     while( more );
     return p;
    }
@@ -312,7 +311,7 @@
 - (void) write_uleb128:(NSUInteger)location data:(uint64_t)data
 {
   assert(false);
-  /*
+#if 0
    uint8_t *
    writeULEB128 (uint8_t *p, uint64_t value)
    {
@@ -327,9 +326,8 @@
     } while( byte >= 0x80 );
    return p;
    }
-   */
+#endif /* 0 */
 }
-
 
 
 // ----------------------------------------------------------------------------
@@ -346,7 +344,7 @@
 - (NSString *)  read_string:(NSRange &)range  { return [self read_string:range lastReadHex:NULL]; }
 - (NSString *)  read_string:(NSRange &)range  fixlen:(NSUInteger)len   { return [self read_string:range fixlen:len lastReadHex:NULL]; }
 - (NSData *)    read_bytes:(NSRange &)range   length:(NSUInteger)length  { return [self read_bytes:range length:length lastReadHex:NULL]; }
-- (int64_t)     read_sleb128:(NSRange &)range  { return [self read_sleb128:range lastReadHex:NULL]; } 
+- (int64_t)     read_sleb128:(NSRange &)range  { return [self read_sleb128:range lastReadHex:NULL]; }
 - (uint64_t)    read_uleb128:(NSRange &)range  { return [self read_uleb128:range lastReadHex:NULL]; }
 
 @end

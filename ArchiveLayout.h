@@ -17,11 +17,15 @@
 
 @property (nonatomic,copy)                   NSString *  name;
 @property (nonatomic)                   uint32_t    length;
+#ifndef NO_OBJC_ARC
 @property (nonatomic,unsafe_unretained) MVLayout *  layout;
+#else
+@property (nonatomic,assign) MVLayout *  layout;
+#endif /* !NO_OBJC_ARC */
 
 @end
 
-@interface ArchiveLayout : MVLayout 
+@interface ArchiveLayout : MVLayout
 {
   NSMutableDictionary * objectInfoMap; // <(NSNumber)object offset,MVObjectInfo>
 }

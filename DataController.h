@@ -49,10 +49,10 @@ struct MVNodeSaver;
   NSString *            valueStr;
 }
 
-@property (nonatomic)   NSString * offsetStr;
-@property (nonatomic)   NSString * dataStr;
-@property (nonatomic)   NSString * descriptionStr;
-@property (nonatomic)   NSString * valueStr;
+@property (nonatomic,assign)   NSString * offsetStr;
+@property (nonatomic,assign)   NSString * dataStr;
+@property (nonatomic,assign)   NSString * descriptionStr;
+@property (nonatomic,assign)   NSString * valueStr;
 
 +(MVColoumns *) coloumnsWithData:(NSString *)col0 :(NSString *)col1 :(NSString *)col2 :(NSString *)col3;
 
@@ -70,8 +70,8 @@ struct MVNodeSaver;
   BOOL                  dirty;            // eg. attributes has changed
 }
 
-@property (nonatomic)   NSDictionary * attributes;
-@property (nonatomic)   MVColoumns * coloumns;
+@property (nonatomic,assign)   NSDictionary * attributes;
+@property (nonatomic,assign)   MVColoumns * coloumns;
 @property (nonatomic)   uint32_t offset;
 @property (nonatomic)   BOOL deleted;
 @property (nonatomic)   BOOL dirty;
@@ -82,7 +82,7 @@ struct MVNodeSaver;
 
 @class MVArchiver;
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 @interface MVTable : NSObject
 {
   NSMutableArray *      rows;         // array of MVRow * (host of all the rows)
@@ -92,6 +92,11 @@ struct MVNodeSaver;
   NSLock *              tableLock;
 }
 
+#ifndef NO_OBJC_ARC
+@property (unsafe_unretained) MVArchiver * archiver;
+#else
+@property (assign)      MVArchiver * archiver;
+#endif /* !NO_OBJC_ARC */
 @property (nonatomic)   FILE * swapFile;
 
 - (NSUInteger)          rowCountToDisplay;
@@ -121,11 +126,15 @@ struct MVNodeSaver;
   uint32_t              detailsOffset;
 }
 
-@property (nonatomic)                   NSString *            caption;
+@property (nonatomic,assign)                   NSString *            caption;
+#ifndef NO_OBJC_ARC
 @property (nonatomic,unsafe_unretained) MVNode *              parent;
+#else
+@property (nonatomic,assign)            MVNode *              parent;
+#endif /* !NO_OBJC_ARC */
 @property (nonatomic)                   NSRange               dataRange;
-@property (nonatomic)                   MVTable *             details;
-@property (nonatomic)                   NSMutableDictionary * userInfo;
+@property (nonatomic,assign)                   MVTable *             details;
+@property (nonatomic,assign)                   NSMutableDictionary * userInfo;
 @property (nonatomic)                   uint32_t              detailsOffset;
 
 - (NSUInteger)          numberOfChildren;
@@ -146,7 +155,7 @@ struct MVNodeSaver;
 @interface MVDataController : NSObject
 {
   NSString *            fileName;         // path to the binary handled by this data controller
-  NSMutableData *       fileData;         // content of the binary 
+  NSMutableData *       fileData;         // content of the binary
   NSMutableData *       realData;         // patched content by relocs and bindings
   NSMutableArray *      layouts;
   MVNode *              rootNode;
@@ -154,12 +163,16 @@ struct MVNodeSaver;
   NSLock *              treeLock;         // semaphore for the node tree
 }
 
-@property (nonatomic)                   NSString *      fileName;
-@property (nonatomic)                   NSMutableData * fileData;
-@property (nonatomic)                   NSMutableData * realData;
+@property (nonatomic,assign)                   NSString *      fileName;
+@property (nonatomic,assign)                   NSMutableData * fileData;
+@property (nonatomic,assign)                   NSMutableData * realData;
 @property (nonatomic,readonly)          NSArray *       layouts;
 @property (nonatomic,readonly)          MVNode *        rootNode;
+#ifndef NO_OBJC_ARC
 @property (nonatomic,unsafe_unretained) MVNode *        selectedNode;
+#else
+@property (nonatomic,assign)            MVNode *        selectedNode;
+#endif /* !NO_OBJC_ARC */
 @property (nonatomic,readonly)          NSLock *        treeLock;
 
 -(NSString *)           getMachine:(cpu_type_t)cputype;
@@ -172,7 +185,7 @@ struct MVNodeSaver;
 
 @end
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 @interface MVArchiver : NSObject
 {
   NSString *            swapPath;
@@ -192,18 +205,18 @@ struct MVNodeSaver;
 
 @end
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 struct MVNodeSaver
 {
   MVNodeSaver();
   ~MVNodeSaver();
-  
+
   void setNode(MVNode * node) { m_node = node; }
-  
+
 private:
   MVNodeSaver(MVNodeSaver const &);
   MVNodeSaver & operator=(MVNodeSaver const &);
-  
+
   MVNode * m_node;
 };
 

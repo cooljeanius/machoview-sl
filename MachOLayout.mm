@@ -23,24 +23,23 @@ using namespace std;
 //============================================================================
 @implementation MachOLayout
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 - (id)init
 {
   NSAssert(NO, @"plain init is not allowed");
   return nil;
 }
 
-//-----------------------------------------------------------------------------
-- (id)initWithDataController:(MVDataController *)dc rootNode:(MVNode *)node 
+//-------------------------------------------------------------------------
+- (id)initWithDataController:(MVDataController *)dc rootNode:(MVNode *)node
 {
-  if (self = [super initWithDataController:dc rootNode:node])
-  {
+  if ((self = [super initWithDataController:dc rootNode:node])) {
     symbolNames = [[NSMutableDictionary alloc] init];
   }
   return self;
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 + (MachOLayout *)layoutWithDataController:(MVDataController *)dc rootNode:(MVNode *)node
 {
   return [[MachOLayout alloc] initWithDataController:dc rootNode:node];
@@ -61,42 +60,46 @@ using namespace std;
   return (mach_header->filetype == MH_DYLIB_STUB);
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (struct section const *)getSectionByIndex:(uint32_t)index
 {
-  static const struct section notfound = { "???", "?????", 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-  return (index < sections.size() ? sections.at(index) : &notfound);
+  static const struct section notfound = {
+    "???", "?????", 0U, 0U, 0U, 0U, 0U, 0U, 0U, 0U, 0U
+  };
+  return ((index < sections.size()) ? sections.at(index) : &notfound);
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (struct section_64 const *)getSection64ByIndex:(uint32_t)index
 {
-  static const struct section_64 notfound = { "???", "?????", 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-  return (index < sections_64.size() ? sections_64.at(index) : &notfound);
+  static const struct section_64 notfound = {
+    "???", "?????", 0UL, 0UL, 0U, 0U, 0U, 0U, 0U, 0U, 0U, 0U
+  };
+  return ((index < sections_64.size()) ? sections_64.at(index) : &notfound);
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (struct nlist const *)getSymbolByIndex:(uint32_t)index
 {
-  static const struct nlist notfound = { 0, 0, 0, 0, 0 }; 
-  return (index < symbols.size() ? symbols.at(index) : &notfound);
+  static const struct nlist notfound = { { 0 }, 0U, 0U, 0, 0U };
+  return ((index < symbols.size()) ? symbols.at(index) : &notfound);
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (struct nlist_64 const *)getSymbol64ByIndex:(uint32_t)index
 {
-  static const struct nlist_64 notfound = { 0, 0, 0, 0, 0 }; 
-  return (index < symbols_64.size() ? symbols_64.at(index) : &notfound);
+  static const struct nlist_64 notfound = { { 0U }, 0U, 0U, 0U, 0U };
+  return ((index < symbols_64.size()) ? symbols_64.at(index) : &notfound);
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (struct dylib const *)getDylibByIndex:(uint32_t)index
 {
-  static const struct dylib notfound = { 0, 0, 0, 0 }; 
-  return (index < dylibs.size() ? dylibs.at(index) : &notfound);
+  static const struct dylib notfound = { { 0 }, 0U, 0U, 0U };
+  return ((index < dylibs.size()) ? dylibs.at(index) : &notfound);
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (NSString *)findSymbolAtRVA:(uint32_t)rva
 {
   NSParameterAssert([self is64bit] == NO);
@@ -104,29 +107,28 @@ using namespace std;
   return (symbolName != nil ? symbolName : [NSString stringWithFormat:@"0x%X",rva]);
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (NSString *)findSymbolAtRVA64:(uint64_t)rva64
 {
   NSParameterAssert([self is64bit] == YES);
-  // extend external symbols represented in 32bit to 64bit
-  if ((int32_t)rva64 < 0)
-  {
+  // extend external symbols represented in 32bit to 64bit:
+  if ((int32_t)rva64 < 0) {
     rva64 |= 0xffffffff00000000LL;
   }
   NSString * symbolName = [symbolNames objectForKey:[NSNumber numberWithUnsignedLongLong:rva64]];
-  return (symbolName != nil ? symbolName : [NSString stringWithFormat:@"0x%qX",rva64]);
+  return ((symbolName != nil) ? symbolName : [NSString stringWithFormat:@"0x%qX",rva64]);
 }
 
-//-----------------------------------------------------------------------------
--(struct section const *)findSectionByName:(char const *)sectname 
+//-------------------------------------------------------------------------
+-(struct section const *)findSectionByName:(char const *)sectname
                                 andSegment:(char const *)segname
 {
-    
-  for (SectionVector::const_iterator sectIter = ++sections.begin(); 
+
+  for (SectionVector::const_iterator sectIter = ++sections.begin();
        sectIter != sections.end(); ++sectIter)
   {
     struct section const * section = *sectIter;
-    if ((segname == NULL || strncmp(section->segname,segname,16) == 0) && 
+    if ((segname == NULL || strncmp(section->segname,segname,16) == 0) &&
         strncmp(section->sectname,sectname,16) == 0)
     {
       return section;
@@ -136,11 +138,11 @@ using namespace std;
 }
 
 //-----------------------------------------------------------------------------
--(struct section_64 const *)findSection64ByName:(char const *)sectname 
+-(struct section_64 const *)findSection64ByName:(char const *)sectname
                                      andSegment:(char const *)segname
 {
-  
-  for (Section64Vector::const_iterator sectIter = ++sections_64.begin(); 
+
+  for (Section64Vector::const_iterator sectIter = ++sections_64.begin();
        sectIter != sections_64.end(); ++sectIter)
   {
     struct section_64 const * section_64 = *sectIter;
@@ -157,7 +159,7 @@ using namespace std;
 - (uint32_t)fileOffsetToRVA: (uint32_t)offset
 {
   NSParameterAssert([self is64bit] == NO);
-  
+
   SegmentInfoMap::const_iterator segIter = segmentInfo.upper_bound(offset);
   if (segIter == segmentInfo.begin())
   {
@@ -174,7 +176,7 @@ using namespace std;
 - (uint64_t)fileOffsetToRVA64: (uint32_t)offset
 {
   NSParameterAssert([self is64bit] == YES);
-  
+
   SegmentInfoMap::const_iterator segIter = segmentInfo.upper_bound(offset);
   if (segIter == segmentInfo.begin())
   {
@@ -191,7 +193,7 @@ using namespace std;
 - (uint32_t)RVAToFileOffset: (uint32_t)rva
 {
   NSParameterAssert([self is64bit] == NO);
-  
+
   SectionInfoMap::const_iterator sectIter = insertChild.upper_bound(rva);
   if (sectIter == insertChild.begin())
   {
@@ -209,7 +211,7 @@ using namespace std;
 - (uint32_t)RVA64ToFileOffset: (uint64_t)rva64
 {
   NSParameterAssert([self is64bit] == YES);
-  
+
   SectionInfoMap::const_iterator sectIter = insertChild.upper_bound(rva64);
   if (sectIter == insertChild.begin())
   {
@@ -231,56 +233,51 @@ using namespace std;
 
 // ----------------------------------------------------------------------------
 static inline
-uint32_t 
+uint32_t
 _hex2int(char const * a, uint32_t len)
 {
   uint32_t val = 0;
-  
-  for(uint32_t i = 0; i < len; i++)
-  {
-    if(a[i] <= '9')
-    {
+
+  for (uint32_t i = 0; i < len; i++) {
+    if (a[i] <= '9') {
       val += (a[i]-'0')*(1<<(4*(len-1-i)));
-    }
-    else
-    {
+    } else {
       val += (a[i]-'7')*(1<<(4*(len-1-i)));
     }
   }
-  
+
   return val;
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 // RAW string to RVA string converter for data source
 - (NSString *)convertToRVA: (NSString *)offsetStr
 {
   uint32_t fileOffset;
-  
-  /*
+
+#ifdef THERE_ARE_PROBLEMS_SO_WE_HAVE_TO_USE_THE_TRADITIONAL_SCANNER
   BOOL scanResult = [[NSScanner scannerWithString:offsetStr] scanHexInt:&fileOffset];
-  
-  // return empty string if it is out of bounds
-  if (scanResult == NO || segmentInfo.empty() || 
-      fileOffset < segmentInfo.begin()->first || 
-      fileOffset + 1 >= (--segmentInfo.end())->first + (--segmentInfo.end())->second.second)
-  {
+
+  // return empty string if it is out of bounds:
+  if ((scanResult == NO) || segmentInfo.empty() ||
+      (fileOffset < segmentInfo.begin()->first) ||
+      ((fileOffset + 1) >= (--segmentInfo.end())->first + (--segmentInfo.end())->second.second)) {
     return @"";
   }
-  */
+#endif /* THERE_ARE_PROBLEMS_SO_WE_HAVE_TO_USE_THE_TRADITIONAL_SCANNER */
   // _hex2int is supposed to be must faster
   // note: on problems use the traditional scanner!
-  
-  fileOffset = _hex2int(CSTRING(offsetStr), [offsetStr length]);
-  
-  if (segmentInfo.empty() || 
-      fileOffset < segmentInfo.begin()->first || 
+
+  fileOffset = _hex2int(CSTRING(offsetStr), (uint32_t)[offsetStr length]);
+
+  if (segmentInfo.empty() ||
+      fileOffset < segmentInfo.begin()->first ||
       fileOffset + 1 >= (--segmentInfo.end())->first + (--segmentInfo.end())->second.second)
   {
     return @"";
   }
-  
-  return ([self is64bit] == NO 
+
+  return ([self is64bit] == NO
           ? [NSString stringWithFormat:@"%.8X",[self fileOffsetToRVA:fileOffset]]
           : [NSString stringWithFormat:@"%.8qX",[self fileOffsetToRVA64:fileOffset]]);
 }
@@ -385,9 +382,9 @@ _hex2int(char const * a, uint32_t len)
   struct linkedit_data_command const * segment_split_info = NULL;
   struct linkedit_data_command const * code_signature = NULL;
   struct linkedit_data_command const * function_starts = NULL;
-  
+
   MATCH_STRUCT(mach_header,imageOffset);
-  
+
   uint32_t base_addr;
   uint32_t seg1addr = (uint32_t)-1;
   uint32_t segs_read_write_addr = (uint32_t)-1;
@@ -397,10 +394,10 @@ _hex2int(char const * a, uint32_t len)
     struct load_command const * load_command = (struct load_command const *)(*cmdIter);
     switch (load_command->cmd)
     {
-      case LC_SEGMENT:        
+      case LC_SEGMENT:
       {
         struct segment_command const * segment_command = (struct segment_command const *)load_command;
-        
+
         if (segment_command->fileoff == 0 && segment_command->filesize != 0)
         {
 					base_addr = segment_command->vmaddr;
@@ -410,14 +407,14 @@ _hex2int(char const * a, uint32_t len)
         {
           seg1addr = segment_command->vmaddr;
         }
-        
+
         // Pickup the address of the first read-write segment for MH_SPLIT_SEGS images.
         if((segment_command->initprot & VM_PROT_WRITE) == VM_PROT_WRITE &&
            segment_command->vmaddr < segs_read_write_addr)
         {
           segs_read_write_addr = segment_command->vmaddr;
         }
-      } break;        
+      } break;
       case LC_SYMTAB: symtab_command = (struct symtab_command const *)load_command; break;
       case LC_DYSYMTAB: dysymtab_command = (struct dysymtab_command const *)load_command; break;
       case LC_TWOLEVEL_HINTS: twolevel_hints_command = (struct twolevel_hints_command const *)load_command; break;
@@ -427,28 +424,28 @@ _hex2int(char const * a, uint32_t len)
       default: ; // not interested
     }
   }
-  
+
   MVNode * symtabNode = nil;
   MVNode * dysymtabNode = nil;
   MVNode * twoLevelHintsNode = nil;
   MVNode * segmentSplitInfoNode = nil;
   MVNode * functionStartsNode = nil;
-  
+
   NSString * lastNodeCaption;
-  
+
   if (symtab_command)
   {
     symtabNode = [self createDataNode:rootNode
                               caption:@"Symbol Table"
                              location:symtab_command->symoff + imageOffset
                                length:symtab_command->nsyms * sizeof(struct nlist)];
-    
-    [self createDataNode:rootNode 
+
+    [self createDataNode:rootNode
                  caption:@"String Table"
                 location:symtab_command->stroff + imageOffset
                   length:symtab_command->strsize];
   }
-  
+
   if (dysymtab_command)
   {
     NSRange dysymtabRange = NSMakeRange(0,0);
@@ -490,10 +487,10 @@ _hex2int(char const * a, uint32_t len)
                                    length:dysymtabRange.length];
     }
   }
-  
+
   if (twolevel_hints_command)
   {
-    twoLevelHintsNode = [self createDataNode:rootNode 
+    twoLevelHintsNode = [self createDataNode:rootNode
                                      caption:@"Two Level Hints Table"
                                     location:twolevel_hints_command->offset + imageOffset
                                       length:twolevel_hints_command->nhints * sizeof(struct twolevel_hint)];
@@ -501,28 +498,28 @@ _hex2int(char const * a, uint32_t len)
 
   if (segment_split_info)
   {
-    segmentSplitInfoNode = [self createDataNode:rootNode 
+    segmentSplitInfoNode = [self createDataNode:rootNode
                                         caption:@"Segment Split Info"
                                        location:segment_split_info->dataoff + imageOffset
                                          length:segment_split_info->datasize];
   }
-  
+
   if (code_signature)
   {
-    [self createDataNode:rootNode 
+    [self createDataNode:rootNode
                  caption:@"Code Signature"
                 location:code_signature->dataoff + imageOffset
                   length:code_signature->datasize];
   }
-  
+
   if (function_starts)
   {
-    functionStartsNode = [self createDataNode:rootNode 
+    functionStartsNode = [self createDataNode:rootNode
                                       caption:@"Function Starts"
                                      location:function_starts->dataoff + imageOffset
                                        length:function_starts->datasize];
   }
-  
+
   //============ Symbol Table ====================
   //==============================================
   if (symtabNode)
@@ -539,8 +536,8 @@ _hex2int(char const * a, uint32_t len)
       [self printException:exception caption:lastNodeCaption];
     }
   }
-  
-  
+
+
   //=========== Dynamic Symbol Table =============
   //==============================================
   if (dysymtabNode)
@@ -551,7 +548,7 @@ _hex2int(char const * a, uint32_t len)
       //==============================================
       if (dysymtab_command->modtaboff * dysymtab_command->nmodtab > 0)
       {
-        [self createModulesNode:dysymtabNode 
+        [self createModulesNode:dysymtabNode
                         caption:(lastNodeCaption = @"Modules")
                        location:dysymtab_command->modtaboff + imageOffset
                          length:dysymtab_command->nmodtab * sizeof(struct dylib_module)];
@@ -561,9 +558,9 @@ _hex2int(char const * a, uint32_t len)
       //==============================================
       if (dysymtab_command->tocoff * dysymtab_command->ntoc > 0)
       {
-        [self createTOCNode:dysymtabNode 
+        [self createTOCNode:dysymtabNode
                     caption:(lastNodeCaption = @"Table of Contents")
-                   location:dysymtab_command->tocoff + imageOffset 
+                   location:dysymtab_command->tocoff + imageOffset
                      length:dysymtab_command->ntoc * sizeof(struct dylib_table_of_contents)];
       }
 
@@ -571,7 +568,7 @@ _hex2int(char const * a, uint32_t len)
       //==============================================
       if (dysymtab_command->extrefsymoff * dysymtab_command->nextrefsyms > 0)
       {
-        [self createReferencesNode:dysymtabNode 
+        [self createReferencesNode:dysymtabNode
                            caption:(lastNodeCaption = @"External References")
                           location:dysymtab_command->extrefsymoff + imageOffset
                             length:dysymtab_command->nextrefsyms * sizeof(struct dylib_reference)];
@@ -581,7 +578,7 @@ _hex2int(char const * a, uint32_t len)
       //==============================================
       if (dysymtab_command->indirectsymoff * dysymtab_command->nindirectsyms > 0)
       {
-        [self createIndirectNode:dysymtabNode 
+        [self createIndirectNode:dysymtabNode
                          caption:(lastNodeCaption = @"Indirect Symbols")
                         location:dysymtab_command->indirectsymoff + imageOffset
                           length:dysymtab_command->nindirectsyms * sizeof(uint32_t)];
@@ -591,7 +588,7 @@ _hex2int(char const * a, uint32_t len)
       //==============================================
       if (dysymtab_command->extreloff * dysymtab_command->nextrel > 0)
       {
-        [self createRelocNode:dysymtabNode 
+        [self createRelocNode:dysymtabNode
                       caption:(lastNodeCaption = @"External Relocations")
                      location:dysymtab_command->extreloff + imageOffset
                        length:dysymtab_command->nextrel * sizeof(struct relocation_info)
@@ -602,7 +599,7 @@ _hex2int(char const * a, uint32_t len)
       //==============================================
       if (dysymtab_command->locreloff * dysymtab_command->nlocrel > 0)
       {
-        [self createRelocNode:dysymtabNode 
+        [self createRelocNode:dysymtabNode
                       caption:(lastNodeCaption = @"Local Relocations")
                      location:dysymtab_command->locreloff + imageOffset
                        length:dysymtab_command->nlocrel * sizeof(struct relocation_info)
@@ -614,13 +611,13 @@ _hex2int(char const * a, uint32_t len)
       [self printException:exception caption:lastNodeCaption];
     }
   }
-  
+
   if (twoLevelHintsNode)
   {
     @try
     {
-      [self createTwoLevelHintsNode:twoLevelHintsNode 
-                            caption:(lastNodeCaption = @"Hints") 
+      [self createTwoLevelHintsNode:twoLevelHintsNode
+                            caption:(lastNodeCaption = @"Hints")
                            location:twoLevelHintsNode.dataRange.location
                              length:twoLevelHintsNode.dataRange.length
                               index:dysymtab_command->iundefsym];
@@ -635,8 +632,8 @@ _hex2int(char const * a, uint32_t len)
   {
     @try
     {
-      [self createSplitSegmentNode:segmentSplitInfoNode 
-                           caption:(lastNodeCaption = @"Code-to-Data References") 
+      [self createSplitSegmentNode:segmentSplitInfoNode
+                           caption:(lastNodeCaption = @"Code-to-Data References")
                           location:segmentSplitInfoNode.dataRange.location
                             length:segmentSplitInfoNode.dataRange.length
                        baseAddress:base_addr];
@@ -646,14 +643,14 @@ _hex2int(char const * a, uint32_t len)
       [self printException:exception caption:lastNodeCaption];
     }
   }
-  
+
   if (functionStartsNode)
   {
     @try
     {
-      [self createFunctionStartsNode:functionStartsNode 
-                             caption:(lastNodeCaption = @"Functions")  
-                            location:functionStartsNode.dataRange.location 
+      [self createFunctionStartsNode:functionStartsNode
+                             caption:(lastNodeCaption = @"Functions")
+                            location:functionStartsNode.dataRange.location
                               length:functionStartsNode.dataRange.length
                          baseAddress:base_addr];
     }
@@ -662,7 +659,7 @@ _hex2int(char const * a, uint32_t len)
       [self printException:exception caption:lastNodeCaption];
     }
   }
-  
+
 }
 
 //-----------------------------------------------------------------------------
@@ -675,30 +672,26 @@ _hex2int(char const * a, uint32_t len)
   struct linkedit_data_command const * segment_split_info = NULL;
   struct linkedit_data_command const * code_signature = NULL;
   struct linkedit_data_command const * function_starts = NULL;
-  
+
   uint64_t base_addr;
   uint64_t seg1addr = (uint64_t)-1LL;
   uint64_t segs_read_write_addr = (uint64_t)-1LL;
-  
-  for (CommandVector::const_iterator cmdIter = commands.begin(); cmdIter != commands.end(); ++cmdIter)
-  {
+
+  for (CommandVector::const_iterator cmdIter = commands.begin(); cmdIter != commands.end(); ++cmdIter) {
     struct load_command const * load_command = (struct load_command const *)(*cmdIter);
-    switch (load_command->cmd)
-    {
-      case LC_SEGMENT_64:     
+    switch (load_command->cmd) {
+      case LC_SEGMENT_64:
       {
         struct segment_command_64 const * segment_command_64 = (struct segment_command_64 const *)load_command;
-        
-        if (segment_command_64->fileoff == 0 && segment_command_64->filesize != 0)
-        {
+
+        if ((segment_command_64->fileoff == 0) && (segment_command_64->filesize != 0)) {
 					base_addr = segment_command_64->vmaddr;
         }
-        
-        if(segment_command_64->vmaddr < seg1addr)
-        {
+
+        if (segment_command_64->vmaddr < seg1addr) {
           seg1addr = segment_command_64->vmaddr;
         }
-        
+
         // Pickup the address of the first read-write segment for MH_SPLIT_SEGS images.
         if((segment_command_64->initprot & VM_PROT_WRITE) == VM_PROT_WRITE &&
            segment_command_64->vmaddr < segs_read_write_addr)
@@ -723,20 +716,20 @@ _hex2int(char const * a, uint32_t len)
   MVNode * functionStartsNode = nil;
 
   NSString * lastNodeCaption;
-  
+
   if (symtab_command)
   {
     symtabNode = [self createDataNode:rootNode
                               caption:@"Symbol Table"
                              location:symtab_command->symoff + imageOffset
                                length:symtab_command->nsyms * sizeof(struct nlist_64)];
-    
-    [self createDataNode:rootNode 
+
+    [self createDataNode:rootNode
                  caption:@"String Table"
                 location:symtab_command->stroff + imageOffset
                   length:symtab_command->strsize];
   }
-  
+
   if (dysymtab_command)
   {
     NSRange dysymtabRange = NSMakeRange(0,0);
@@ -778,18 +771,18 @@ _hex2int(char const * a, uint32_t len)
                                    length:dysymtabRange.length];
     }
   }
-  
+
   if (twolevel_hints_command)
   {
-    twoLevelHintsNode = [self createDataNode:rootNode 
+    twoLevelHintsNode = [self createDataNode:rootNode
                                      caption:@"Two Level Hints Table"
                                     location:twolevel_hints_command->offset + imageOffset
                                       length:twolevel_hints_command->nhints * sizeof(struct twolevel_hint)];
   }
-  
+
   if (segment_split_info)
   {
-    segmentSplitInfoNode = [self createDataNode:rootNode 
+    segmentSplitInfoNode = [self createDataNode:rootNode
                                         caption:@"Segment Split Info"
                                        location:segment_split_info->dataoff + imageOffset
                                          length:segment_split_info->datasize];
@@ -797,7 +790,7 @@ _hex2int(char const * a, uint32_t len)
 
   if (code_signature)
   {
-    [self createDataNode:rootNode 
+    [self createDataNode:rootNode
                  caption:@"Code Signature"
                 location:code_signature->dataoff + imageOffset
                   length:code_signature->datasize];
@@ -805,7 +798,7 @@ _hex2int(char const * a, uint32_t len)
 
   if (function_starts)
   {
-    functionStartsNode = [self createDataNode:rootNode 
+    functionStartsNode = [self createDataNode:rootNode
                                       caption:@"Function Starts"
                                      location:function_starts->dataoff + imageOffset
                                        length:function_starts->datasize];
@@ -827,7 +820,7 @@ _hex2int(char const * a, uint32_t len)
       [self printException:exception caption:lastNodeCaption];
     }
   }
-  
+
 
   //=========== Dynamic Symbol Table =============
   //==============================================
@@ -839,19 +832,19 @@ _hex2int(char const * a, uint32_t len)
       //==============================================
       if (dysymtab_command->modtaboff * dysymtab_command->nmodtab > 0)
       {
-        [self createModules64Node:dysymtabNode 
+        [self createModules64Node:dysymtabNode
                           caption:(lastNodeCaption = @"Modules64")
                          location:dysymtab_command->modtaboff + imageOffset
                            length:dysymtab_command->nmodtab * sizeof(struct dylib_module_64)];
-      }  
+      }
 
       //========== Table of Contents =================
       //==============================================
       if (dysymtab_command->tocoff * dysymtab_command->ntoc > 0)
       {
-        [self createTOC64Node:dysymtabNode 
+        [self createTOC64Node:dysymtabNode
                       caption:(lastNodeCaption = @"Table of Contents")
-                     location:dysymtab_command->tocoff + imageOffset 
+                     location:dysymtab_command->tocoff + imageOffset
                        length:dysymtab_command->ntoc * sizeof(struct dylib_table_of_contents)];
       }
 
@@ -859,7 +852,7 @@ _hex2int(char const * a, uint32_t len)
       //==============================================
       if (dysymtab_command->extrefsymoff * dysymtab_command->nextrefsyms > 0)
       {
-        [self createReferencesNode:dysymtabNode 
+        [self createReferencesNode:dysymtabNode
                            caption:(lastNodeCaption = @"External References")
                           location:dysymtab_command->extrefsymoff + imageOffset
                             length:dysymtab_command->nextrefsyms * sizeof(struct dylib_reference)];
@@ -869,7 +862,7 @@ _hex2int(char const * a, uint32_t len)
       //==============================================
       if (dysymtab_command->indirectsymoff * dysymtab_command->nindirectsyms > 0)
       {
-        [self createIndirect64Node:dysymtabNode 
+        [self createIndirect64Node:dysymtabNode
                            caption:(lastNodeCaption = @"Indirect Symbols")
                           location:dysymtab_command->indirectsymoff + imageOffset
                             length:dysymtab_command->nindirectsyms * sizeof(uint32_t)];
@@ -879,7 +872,7 @@ _hex2int(char const * a, uint32_t len)
       //==============================================
       if (dysymtab_command->extreloff * dysymtab_command->nextrel > 0)
       {
-        [self createReloc64Node:dysymtabNode 
+        [self createReloc64Node:dysymtabNode
                         caption:(lastNodeCaption = @"External Relocations")
                        location:dysymtab_command->extreloff + imageOffset
                          length:dysymtab_command->nextrel * sizeof(struct relocation_info)
@@ -890,7 +883,7 @@ _hex2int(char const * a, uint32_t len)
       //==============================================
       if (dysymtab_command->locreloff * dysymtab_command->nlocrel > 0)
       {
-        [self createReloc64Node:dysymtabNode 
+        [self createReloc64Node:dysymtabNode
                         caption:(lastNodeCaption = @"Local Reloc Table")
                        location:dysymtab_command->locreloff + imageOffset
                          length:dysymtab_command->nlocrel * sizeof(struct relocation_info)
@@ -902,13 +895,13 @@ _hex2int(char const * a, uint32_t len)
       [self printException:exception caption:lastNodeCaption];
     }
   }
-  
+
   if (twoLevelHintsNode)
   {
     @try
     {
-      [self createTwoLevelHintsNode:twoLevelHintsNode 
-                            caption:(lastNodeCaption = @"Hints") 
+      [self createTwoLevelHintsNode:twoLevelHintsNode
+                            caption:(lastNodeCaption = @"Hints")
                            location:twoLevelHintsNode.dataRange.location
                              length:twoLevelHintsNode.dataRange.length
                               index:dysymtab_command->iundefsym];
@@ -918,13 +911,13 @@ _hex2int(char const * a, uint32_t len)
       [self printException:exception caption:lastNodeCaption];
     }
   }
-  
+
   if (segmentSplitInfoNode)
   {
     @try
     {
-      [self createSplitSegmentNode:segmentSplitInfoNode 
-                           caption:(lastNodeCaption = @"Code-to-Data References") 
+      [self createSplitSegmentNode:segmentSplitInfoNode
+                           caption:(lastNodeCaption = @"Code-to-Data References")
                           location:segmentSplitInfoNode.dataRange.location
                             length:segmentSplitInfoNode.dataRange.length
                        baseAddress:base_addr];
@@ -933,15 +926,15 @@ _hex2int(char const * a, uint32_t len)
     {
       [self printException:exception caption:lastNodeCaption];
     }
-  }  
-  
+  }
+
   if (functionStartsNode)
   {
     @try
     {
-      [self createFunctionStartsNode:functionStartsNode 
-                             caption:(lastNodeCaption = @"Functions")  
-                            location:functionStartsNode.dataRange.location 
+      [self createFunctionStartsNode:functionStartsNode
+                             caption:(lastNodeCaption = @"Functions")
+                            location:functionStartsNode.dataRange.location
                               length:functionStartsNode.dataRange.length
                          baseAddress:base_addr];
     }
@@ -950,23 +943,23 @@ _hex2int(char const * a, uint32_t len)
       [self printException:exception caption:lastNodeCaption];
     }
   }
-  
+
 }
 
 //-----------------------------------------------------------------------------
 -(void)processDyldInfo
 {
   uint64_t base_addr = 0;
-  
+
   // find related load commands
   struct dyld_info_command const * dyld_info_command = NULL;
-  
+
   for (CommandVector::const_iterator cmdIter = commands.begin(); cmdIter != commands.end(); ++cmdIter)
   {
     struct load_command const * load_command = (struct load_command const *)(*cmdIter);
     switch (load_command->cmd)
     {
-      case LC_SEGMENT:     
+      case LC_SEGMENT:
       {
         struct segment_command const * segment_command = (struct segment_command const *)load_command;
         if (segment_command->fileoff == 0 && segment_command->filesize != 0)
@@ -975,7 +968,7 @@ _hex2int(char const * a, uint32_t len)
         }
       } break;
 
-      case LC_SEGMENT_64:     
+      case LC_SEGMENT_64:
       {
         struct segment_command_64 const * segment_command_64 = (struct segment_command_64 const *)load_command;
         if (segment_command_64->fileoff == 0 && segment_command_64->filesize != 0)
@@ -988,12 +981,12 @@ _hex2int(char const * a, uint32_t len)
       default: ; // not interested
     }
   }
-  
+
   if (dyld_info_command == NULL)
   {
     return;
   }
-  
+
   NSRange dyldInfoRange = NSMakeRange(0,0);
   if (dyld_info_command->rebase_off > 0)
   {
@@ -1024,11 +1017,11 @@ _hex2int(char const * a, uint32_t len)
                                        caption:@"Dynamic Loader Info"
                                       location:dyldInfoRange.location
                                         length:dyldInfoRange.length];
-  
+
   DyldHelper * dyldHelper = [DyldHelper dyldHelperWithSymbols:symbolNames is64Bit:[self is64bit]];
-  
+
   NSString * lastNodeCaption;
-  @try 
+  @try
   {
     if (dyld_info_command->rebase_off * dyld_info_command->rebase_size > 0)
     {
@@ -1071,7 +1064,7 @@ _hex2int(char const * a, uint32_t len)
                      nodeType:NodeTypeLazyBind
                    dyldHelper:dyldHelper];
     }
-    
+
     if (dyld_info_command->export_off * dyld_info_command->export_size > 0)
     {
       [self createExportNode:dyldInfoNode
@@ -1085,31 +1078,31 @@ _hex2int(char const * a, uint32_t len)
   {
     [self printException:exception caption:lastNodeCaption];
   }
-  
+
 }
 
 //-----------------------------------------------------------------------------
 template <typename SectionT>
 struct CompareSectionByName
 {
-  CompareSectionByName(char const * segname, char const * sectname) 
+  CompareSectionByName(char const * segname, char const * sectname)
     : segname(segname)
-    , sectname(sectname) 
+    , sectname(sectname)
   {
   }
 
-  CompareSectionByName(char const * sectname) 
+  CompareSectionByName(char const * sectname)
     : segname(NULL)
-    , sectname(sectname) 
+    , sectname(sectname)
   {
   }
-  
+
   bool operator() (SectionT const * section)
   {
-    return ((segname == NULL || strncmp(segname,section->segname,16) == 0) && 
+    return ((segname == NULL || strncmp(segname,section->segname,16) == 0) &&
                                 strncmp(sectname,section->sectname,16) == 0);
   }
-  
+
   char const * segname;
   char const * sectname;
 };
@@ -1118,56 +1111,54 @@ struct CompareSectionByName
 -(void)processSections
 {
   NSString * lastNodeCaption;
-  
+
   //================ sections with literal content ============================
-  for (SectionVector::const_iterator sectIter = ++sections.begin(); sectIter != sections.end(); ++sectIter)
-  {
+  for (SectionVector::const_iterator sectIter = ++sections.begin(); sectIter != sections.end(); ++sectIter) {
     struct section const * section = *sectIter;
     MVNode * sectionNode = [self findNodeByUserInfo:[self userInfoForSection:section]];
-    if (sectionNode == nil)
-    {
+    if (sectionNode == nil) {
       continue;
     }
-    
-    @try
-    {
-      switch (section->flags & SECTION_TYPE)
-      {
-        case S_CSTRING_LITERALS: 
-          [self createCStringsNode:sectionNode 
-                           caption:(lastNodeCaption = @"C String Literals")
-                          location:section->offset + imageOffset
-                            length:section->size]; break;
-      
-        case S_4BYTE_LITERALS:
-          [self createLiteralsNode:sectionNode 
-                           caption:(lastNodeCaption = @"Floating Point Literals")
-                          location:section->offset + imageOffset
-                            length:section->size
-                            stride:4]; break;
-          
-        case S_8BYTE_LITERALS:
-          [self createLiteralsNode:sectionNode 
-                           caption:(lastNodeCaption = @"Floating Point Literals")
-                          location:section->offset + imageOffset
-                            length:section->size
-                            stride:8]; break;
 
-        case S_16BYTE_LITERALS:
-          [self createLiteralsNode:sectionNode 
+    @try {
+      switch (section->flags & SECTION_TYPE) {
+        case S_CSTRING_LITERALS:
+          [self createCStringsNode:sectionNode
+                           caption:(lastNodeCaption = @"C String Literals")
+                          location:(section->offset + imageOffset)
+                            length:section->size];
+          break;
+        case S_4BYTE_LITERALS:
+          [self createLiteralsNode:sectionNode
                            caption:(lastNodeCaption = @"Floating Point Literals")
-                          location:section->offset + imageOffset
+                          location:(section->offset + imageOffset)
                             length:section->size
-                            stride:16]; break;
+                            stride:4];
+          break;
+        case S_8BYTE_LITERALS:
+          [self createLiteralsNode:sectionNode
+                           caption:(lastNodeCaption = @"Floating Point Literals")
+                          location:(section->offset + imageOffset)
+                            length:section->size
+                            stride:8];
+          break;
+        case S_16BYTE_LITERALS:
+          [self createLiteralsNode:sectionNode
+                           caption:(lastNodeCaption = @"Floating Point Literals")
+                          location:(section->offset + imageOffset)
+                            length:section->size
+                            stride:16];
+          break;
+        default:
+          break;
       }
     }
-    @catch(NSException * exception)
-    {
+    @catch(NSException * exception) {
       [self printException:exception caption:lastNodeCaption];
     }
   }
 
-  //================ sections with pointer content ============================
+  //================ sections with pointer content ========================
   for (SectionVector::const_iterator sectIter = ++sections.begin(); sectIter != sections.end(); ++sectIter)
   {
     struct section const * section = *sectIter;
@@ -1176,54 +1167,54 @@ struct CompareSectionByName
     {
       continue;
     }
-    
-    @try 
+
+    @try
     {
       switch (section->flags & SECTION_TYPE)
       {
         case S_LITERAL_POINTERS:
-          [self createPointersNode:sectionNode 
+          [self createPointersNode:sectionNode
                            caption:(lastNodeCaption = @"Literal Pointers")
                           location:section->offset + imageOffset
                             length:section->size]; break;
 
         case S_MOD_INIT_FUNC_POINTERS:
-          [self createPointersNode:sectionNode 
-                           caption:(lastNodeCaption = @"Module Init Func Pointers") 
+          [self createPointersNode:sectionNode
+                           caption:(lastNodeCaption = @"Module Init Func Pointers")
                           location:section->offset + imageOffset
                             length:section->size]; break;
 
         case S_MOD_TERM_FUNC_POINTERS:
-          [self createPointersNode:sectionNode 
-                           caption:(lastNodeCaption = @"Module Term Func Pointers") 
+          [self createPointersNode:sectionNode
+                           caption:(lastNodeCaption = @"Module Term Func Pointers")
                           location:section->offset + imageOffset
                             length:section->size]; break;
 
         case S_LAZY_SYMBOL_POINTERS:
-          [self createIndPointersNode:sectionNode 
+          [self createIndPointersNode:sectionNode
                               caption:(lastNodeCaption = @"Lazy Symbol Pointers")
                              location:section->offset + imageOffset
                                length:section->size]; break;
 
         case S_NON_LAZY_SYMBOL_POINTERS:
-          [self createIndPointersNode:sectionNode 
+          [self createIndPointersNode:sectionNode
                               caption:(lastNodeCaption = @"Non-Lazy Symbol Pointers")
                              location:section->offset + imageOffset
                                length:section->size]; break;
 
         case S_LAZY_DYLIB_SYMBOL_POINTERS:
-          [self createIndPointersNode:sectionNode 
+          [self createIndPointersNode:sectionNode
                               caption:(lastNodeCaption = @"Lazy Dylib Symbol Pointers")
                              location:section->offset + imageOffset
                                length:section->size]; break;
 
         case S_SYMBOL_STUBS:
-          [self createIndStubsNode:sectionNode 
+          [self createIndStubsNode:sectionNode
                            caption:(lastNodeCaption = @"Symbol Stubs")
                           location:section->offset + imageOffset
                             length:section->size
                             stride:section->reserved2]; break;
-       
+
         default:;
       }
     }
@@ -1232,7 +1223,7 @@ struct CompareSectionByName
       [self printException:exception caption:lastNodeCaption];
     }
   }
-  
+
 }
 
 //-----------------------------------------------------------------------------
@@ -1249,46 +1240,47 @@ struct CompareSectionByName
     {
       continue;
     }
-    
+
     @try
     {
-      switch (section_64->flags & SECTION_TYPE)
-      {
-        case S_CSTRING_LITERALS: 
-          [self createCStringsNode:sectionNode 
+      switch (section_64->flags & SECTION_TYPE) {
+        case S_CSTRING_LITERALS:
+          [self createCStringsNode:sectionNode
                            caption:(lastNodeCaption = @"C String Literals")
-                          location:section_64->offset + imageOffset
-                            length:section_64->size]; break;
-          
+                          location:(section_64->offset + imageOffset)
+                            length:section_64->size];
+          break;
         case S_4BYTE_LITERALS:
-          [self createLiteralsNode:sectionNode 
+          [self createLiteralsNode:sectionNode
                            caption:(lastNodeCaption = @"Floating Point Literals")
-                          location:section_64->offset + imageOffset
+                          location:(section_64->offset + imageOffset)
                             length:section_64->size
-                            stride:4]; break;
-          
+                            stride:4];
+          break;
         case S_8BYTE_LITERALS:
-          [self createLiteralsNode:sectionNode 
+          [self createLiteralsNode:sectionNode
                            caption:(lastNodeCaption = @"Floating Point Literals")
-                          location:section_64->offset + imageOffset
+                          location:(section_64->offset + imageOffset)
                             length:section_64->size
-                            stride:8]; break;
-          
+                            stride:8];
+          break;
         case S_16BYTE_LITERALS:
-          [self createLiteralsNode:sectionNode 
+          [self createLiteralsNode:sectionNode
                            caption:(lastNodeCaption = @"Floating Point Literals")
-                          location:section_64->offset + imageOffset
+                          location:(section_64->offset + imageOffset)
                             length:section_64->size
-                            stride:16]; break;
+                            stride:16];
+          break;
+        default:
+          break;
       }
     }
-    @catch(NSException * exception)
-    {
+    @catch(NSException * exception) {
       [self printException:exception caption:lastNodeCaption];
     }
   }
-    
-  //================ sections with pointer content ============================
+
+  //================ sections with pointer content ========================
   for (Section64Vector::const_iterator sectIter = ++sections_64.begin(); sectIter != sections_64.end(); ++sectIter)
   {
     struct section_64 const * section_64 = *sectIter;
@@ -1297,54 +1289,54 @@ struct CompareSectionByName
     {
       continue;
     }
-    
-    @try 
+
+    @try
     {
       switch (section_64->flags & SECTION_TYPE)
       {
         case S_LITERAL_POINTERS:
-          [self createPointers64Node:sectionNode 
+          [self createPointers64Node:sectionNode
                              caption:(lastNodeCaption = @"Literal Pointers")
                             location:section_64->offset + imageOffset
                               length:section_64->size]; break;
-          
+
         case S_MOD_INIT_FUNC_POINTERS:
-          [self createPointers64Node:sectionNode 
-                             caption:(lastNodeCaption = @"Module Init Func Pointers") 
+          [self createPointers64Node:sectionNode
+                             caption:(lastNodeCaption = @"Module Init Func Pointers")
                             location:section_64->offset + imageOffset
                               length:section_64->size]; break;
-          
+
         case S_MOD_TERM_FUNC_POINTERS:
-          [self createPointers64Node:sectionNode 
-                             caption:(lastNodeCaption = @"Module Term Func Pointers") 
+          [self createPointers64Node:sectionNode
+                             caption:(lastNodeCaption = @"Module Term Func Pointers")
                             location:section_64->offset + imageOffset
                               length:section_64->size]; break;
-          
+
         case S_LAZY_SYMBOL_POINTERS:
-          [self createIndPointers64Node:sectionNode 
+          [self createIndPointers64Node:sectionNode
                                 caption:(lastNodeCaption = @"Lazy Symbol Pointers")
                                location:section_64->offset + imageOffset
                                  length:section_64->size]; break;
-          
+
         case S_NON_LAZY_SYMBOL_POINTERS:
-          [self createIndPointers64Node:sectionNode 
+          [self createIndPointers64Node:sectionNode
                                 caption:(lastNodeCaption = @"Non-Lazy Symbol Pointers")
                                location:section_64->offset + imageOffset
                                  length:section_64->size]; break;
-          
+
         case S_LAZY_DYLIB_SYMBOL_POINTERS:
-          [self createIndPointers64Node:sectionNode 
+          [self createIndPointers64Node:sectionNode
                                 caption:(lastNodeCaption = @"Lazy Dylib Symbol Pointers")
                                location:section_64->offset + imageOffset
                                  length:section_64->size]; break;
-          
+
         case S_SYMBOL_STUBS:
-          [self createIndStubs64Node:sectionNode 
+          [self createIndStubs64Node:sectionNode
                              caption:(lastNodeCaption = @"Symbol Stubs")
                             location:section_64->offset + imageOffset
                               length:section_64->size
                               stride:section_64->reserved2]; break;
-          
+
         default:;
       }
     }
@@ -1353,7 +1345,7 @@ struct CompareSectionByName
       [self printException:exception caption:lastNodeCaption];
     }
   }
-  
+
 }
 
 //-----------------------------------------------------------------------------
@@ -1364,28 +1356,28 @@ struct CompareSectionByName
   {
     return;
   }
-  
+
   NSString * lastNodeCaption;
-  
+
   for (SectionVector::iterator sectIter = find_if(++sections.begin(), sections.end(), CompareSectionByName<struct section>("__eh_frame"));
        sectIter != sections.end();
        sectIter = find_if(++sectIter, sections.end(), CompareSectionByName<struct section>("__eh_frame")))
   {
     struct section const * section = *sectIter;
-    
+
     MVNode * sectionNode = [self findNodeByUserInfo:[self userInfoForSection:section]];
     // there is no valid exception data
-    if (sectionNode == nil) 
+    if (sectionNode == nil)
     {
       return;
     }
-    
-    /* The .eh_frame section shall contain 1 or more Call Frame Information (CFI) records. 
+
+    /* The .eh_frame section shall contain 1 or more Call Frame Information (CFI) records.
      * The number of records present shall be determined by size of the section as contained in the section header.
-     * Each CFI record contains a Common Information Entry (CIE) record followed by 1 or more Frame Description Entry (FDE) records. 
+     * Each CFI record contains a Common Information Entry (CIE) record followed by 1 or more Frame Description Entry (FDE) records.
      * Both CIEs and FDEs shall be aligned to an addressing unit sized boundary.
      */
-    
+
     @try
     {
       uint32_t location = section->offset + imageOffset;
@@ -1394,7 +1386,7 @@ struct CompareSectionByName
         NSRange range = NSMakeRange(location,0);
         uint32_t length = [self read_uint32:range];
         uint32_t cieID = [self read_uint32:range];
-        
+
         if (cieID == 0)
         {
           uint32_t CIE_addr = [self fileOffsetToRVA:location];
@@ -1421,28 +1413,28 @@ struct CompareSectionByName
   {
     return;
   }
-  
+
   NSString * lastNodeCaption;
-  
+
   for (Section64Vector::iterator sectIter = find_if(++sections_64.begin(), sections_64.end(), CompareSectionByName<struct section_64>("__eh_frame"));
        sectIter != sections_64.end();
        sectIter = find_if(++sectIter, sections_64.end(), CompareSectionByName<struct section_64>("__eh_frame")))
   {
     struct section_64 const * section_64 = *sectIter;
-    
+
     MVNode * sectionNode = [self findNodeByUserInfo:[self userInfoForSection64:section_64]];
     // there is no valid exception data
-    if (sectionNode == nil) 
+    if (sectionNode == nil)
     {
       return;
     }
-    
-    /* The .eh_frame section shall contain 1 or more Call Frame Information (CFI) records. 
+
+    /* The .eh_frame section shall contain 1 or more Call Frame Information (CFI) records.
      * The number of records present shall be determined by size of the section as contained in the section header.
-     * Each CFI record contains a Common Information Entry (CIE) record followed by 1 or more Frame Description Entry (FDE) records. 
+     * Each CFI record contains a Common Information Entry (CIE) record followed by 1 or more Frame Description Entry (FDE) records.
      * Both CIEs and FDEs shall be aligned to an addressing unit sized boundary.
      */
-    
+
     @try
     {
       uint32_t location = section_64->offset + imageOffset;
@@ -1451,7 +1443,7 @@ struct CompareSectionByName
         NSRange range = NSMakeRange(location,0);
         uint32_t length = [self read_uint32:range];
         uint32_t cieID = [self read_uint32:range];
-        
+
         if (cieID == 0)
         {
           uint64_t CIE_addr = [self fileOffsetToRVA64:location];
@@ -1478,42 +1470,42 @@ struct CompareSectionByName
   {
     return;
   }
-  
+
   NSString * lastNodeCaption;
-  
+
   for (SectionVector::iterator sectIter = find_if(++sections.begin(), sections.end(), CompareSectionByName<struct section>("__gcc_except_tab"));
        sectIter != sections.end();
        sectIter = find_if(++sectIter, sections.end(), CompareSectionByName<struct section>("__gcc_except_tab")))
   {
     struct section const * section = *sectIter;
-    
+
     MVNode * sectionNode = [self findNodeByUserInfo:[self userInfoForSection:section]];
     NSParameterAssert(sectionNode != nil);
     if (sectionNode == nil)
-    { 
+    {
       return;
     }
-    
-    @try 
+
+    @try
     {
       for (ExceptionFrameMap::iterator ehFrameIter = lsdaInfo.begin(); ehFrameIter != lsdaInfo.end();)
       {
         uint32_t lsdaAddr = ehFrameIter->first;
         uint32_t frameAddr = ehFrameIter->second;
-        
+
         uint32_t location = [self RVAToFileOffset:lsdaAddr];
-        
-        uint32_t length = (++ehFrameIter != lsdaInfo.end() 
+
+        uint32_t length = (++ehFrameIter != lsdaInfo.end()
                            ? [self RVAToFileOffset:ehFrameIter->first]
                            : imageOffset + section->offset + section->size) - location;
-        
-        [self createLSDANode:sectionNode 
+
+        [self createLSDANode:sectionNode
                      caption:(lastNodeCaption = [NSString stringWithFormat:@"LSDA %@",[self findSymbolAtRVA:lsdaAddr]])
                     location:location
                       length:length
               eh_frame_begin:frameAddr];
       }
-    }      
+    }
     @catch(NSException * exception)
     {
       [self printException:exception caption:lastNodeCaption];
@@ -1529,42 +1521,42 @@ struct CompareSectionByName
   {
     return;
   }
-  
+
   NSString * lastNodeCaption;
-  
+
   for (Section64Vector::iterator sectIter = find_if(++sections_64.begin(), sections_64.end(), CompareSectionByName<struct section_64>("__gcc_except_tab"));
        sectIter != sections_64.end();
        sectIter = find_if(++sectIter, sections_64.end(), CompareSectionByName<struct section_64>("__gcc_except_tab")))
   {
     struct section_64 const * section_64 = *sectIter;
-    
+
     MVNode * sectionNode = [self findNodeByUserInfo:[self userInfoForSection64:section_64]];
     NSParameterAssert(sectionNode != nil);
     if (sectionNode == nil)
     {
       return;
     }
-    
-    @try 
+
+    @try
     {
       for (ExceptionFrameMap::iterator ehFrameIter = lsdaInfo.begin(); ehFrameIter != lsdaInfo.end();)
       {
         uint64_t lsdaAddr = ehFrameIter->first;
         uint64_t frameAddr = ehFrameIter->second;
-        
+
         uint32_t location = [self RVA64ToFileOffset:lsdaAddr];
-        
-        uint32_t length = (++ehFrameIter != lsdaInfo.end() 
+
+        uint32_t length = (++ehFrameIter != lsdaInfo.end()
                            ? [self RVA64ToFileOffset:ehFrameIter->first]
                            : section_64->offset + section_64->size) - location;
-        
-        [self createLSDANode:sectionNode 
+
+        [self createLSDANode:sectionNode
                      caption:(lastNodeCaption = [NSString stringWithFormat:@"LSDA %@",[self findSymbolAtRVA64:lsdaAddr]])
                     location:location
                       length:length
               eh_frame_begin:frameAddr];
       }
-    }      
+    }
     @catch(NSException * exception)
     {
       [self printException:exception caption:lastNodeCaption];
@@ -1576,28 +1568,28 @@ struct CompareSectionByName
 -(void)processUnwindInfo
 {
   NSString * lastNodeCaption;
-  
-  SectionVector::const_iterator sectIter = 
+
+  SectionVector::const_iterator sectIter =
   find_if(++sections.begin(), sections.end(), CompareSectionByName<struct section>("__unwind_info"));
-  
+
   if (sectIter != sections.end())
   {
     struct section const * section = *sectIter;
-   
+
     MVNode * sectionNode = [self findNodeByUserInfo:[self userInfoForSection:section]];
     NSParameterAssert(sectionNode != nil);
     if (sectionNode == nil)
     {
       return;
     }
-   
+
     uint32_t location = section->offset + imageOffset;
-   
-    @try 
+
+    @try
     {
       MATCH_STRUCT(unwind_info_section_header, location);
-   
-      [self createUnwindInfoHeaderNode:sectionNode 
+
+      [self createUnwindInfoHeaderNode:sectionNode
                                caption:(lastNodeCaption = @"Unwind Info Section Header")
                               location:location
                                 header:unwind_info_section_header];
@@ -1622,43 +1614,43 @@ struct CompareSectionByName
   PointerVector objcSuperReferences;
   PointerVector objcCategoryPointers;
   PointerVector objcProtocolPointers;
-  
+
   NSString * lastNodeCaption;
   MVNode * sectionNode;
   struct section const * section;
   bool hasObjCModules = false; // objC version detector
-  
-  @try 
+
+  @try
   {
     // first Objective-C ABI
     section = [self findSectionByName:"__module_info" andSegment:"__OBJC"];
     if ((sectionNode = [self findNodeByUserInfo:[self userInfoForSection:section]]))
     {
       hasObjCModules = true;
-      [self createObjCModulesNode:sectionNode 
-                          caption:(lastNodeCaption = @"ObjC Modules") 
-                         location:section->offset + imageOffset 
+      [self createObjCModulesNode:sectionNode
+                          caption:(lastNodeCaption = @"ObjC Modules")
+                         location:section->offset + imageOffset
                            length:section->size];
     }
-    
+
     section = [self findSectionByName:"__class_ext" andSegment:"__OBJC"];
     if ((sectionNode = [self findNodeByUserInfo:[self userInfoForSection:section]]))
     {
-      [self createObjCClassExtNode:sectionNode 
-                           caption:(lastNodeCaption = @"ObjC Class Extensions") 
-                          location:section->offset + imageOffset 
+      [self createObjCClassExtNode:sectionNode
+                           caption:(lastNodeCaption = @"ObjC Class Extensions")
+                          location:section->offset + imageOffset
                             length:section->size];
     }
-    
+
     section = [self findSectionByName:"__protocol_ext" andSegment:"__OBJC"];
     if ((sectionNode = [self findNodeByUserInfo:[self userInfoForSection:section]]))
     {
-      [self createObjCProtocolExtNode:sectionNode 
-                              caption:(lastNodeCaption = @"ObjC Protocol Extensions") 
-                             location:section->offset + imageOffset 
+      [self createObjCProtocolExtNode:sectionNode
+                              caption:(lastNodeCaption = @"ObjC Protocol Extensions")
+                             location:section->offset + imageOffset
                                length:section->size];
     }
-    
+
     // second Objective-C ABI
     if (hasObjCModules == false)
     {
@@ -1667,90 +1659,90 @@ struct CompareSectionByName
         section = [self findSectionByName:"__objc_classlist" andSegment:"__DATA"];
       if ((sectionNode = [self findNodeByUserInfo:[self userInfoForSection:section]]))
       {
-        [self createObjC2PointerListNode:sectionNode 
-                                 caption:(lastNodeCaption = @"ObjC2 Class List") 
-                                location:section->offset + imageOffset 
+        [self createObjC2PointerListNode:sectionNode
+                                 caption:(lastNodeCaption = @"ObjC2 Class List")
+                                location:section->offset + imageOffset
                                   length:section->size
                                 pointers:objcClassPointers];
       }
-      
+
       section = [self findSectionByName:"__class_refs" andSegment:"__OBJC2"];
       if (section == NULL)
         section = [self findSectionByName:"__objc_classrefs" andSegment:"__DATA"];
       if ((sectionNode = [self findNodeByUserInfo:[self userInfoForSection:section]]))
       {
-        [self createObjC2PointerListNode:sectionNode 
-                                 caption:(lastNodeCaption = @"ObjC2 References") 
-                                location:section->offset + imageOffset 
+        [self createObjC2PointerListNode:sectionNode
+                                 caption:(lastNodeCaption = @"ObjC2 References")
+                                location:section->offset + imageOffset
                                   length:section->size
                                 pointers:objcClassReferences];
       }
-      
+
       section = [self findSectionByName:"__super_refs" andSegment:"__OBJC2"];
       if (section == NULL)
         section = [self findSectionByName:"__objc_superrefs" andSegment:"__DATA"];
       if ((sectionNode = [self findNodeByUserInfo:[self userInfoForSection:section]]))
       {
-        [self createObjC2PointerListNode:sectionNode 
-                                 caption:(lastNodeCaption = @"ObjC2 References") 
-                                location:section->offset + imageOffset 
+        [self createObjC2PointerListNode:sectionNode
+                                 caption:(lastNodeCaption = @"ObjC2 References")
+                                location:section->offset + imageOffset
                                   length:section->size
                                 pointers:objcSuperReferences];
       }
-      
+
       section = [self findSectionByName:"__category_list" andSegment:"__OBJC2"];
       if (section == NULL)
         section = [self findSectionByName:"__objc_catlist" andSegment:"__DATA"];
       if ((sectionNode = [self findNodeByUserInfo:[self userInfoForSection:section]]))
       {
-        [self createObjC2PointerListNode:sectionNode 
+        [self createObjC2PointerListNode:sectionNode
                                  caption:(lastNodeCaption = @"ObjC2 Category List")
-                                location:section->offset + imageOffset 
+                                location:section->offset + imageOffset
                                   length:section->size
                                 pointers:objcCategoryPointers];
       }
-      
+
       section = [self findSectionByName:"__protocol_list" andSegment:"__OBJC2"];
       if (section == NULL)
         section = [self findSectionByName:"__objc_protolist" andSegment:"__DATA"];
       if ((sectionNode = [self findNodeByUserInfo:[self userInfoForSection:section]]))
       {
-        [self createObjC2PointerListNode:sectionNode 
+        [self createObjC2PointerListNode:sectionNode
                                  caption:(lastNodeCaption = @"ObjC2 Pointer List")
-                                location:section->offset + imageOffset 
+                                location:section->offset + imageOffset
                                   length:section->size
                                 pointers:objcProtocolPointers];
       }
-      
+
       section = [self findSectionByName:"__message_refs" andSegment:"__OBJC2"];
       if (section == NULL)
         section = [self findSectionByName:"__objc_msgrefs" andSegment:"__DATA"];
       if ((sectionNode = [self findNodeByUserInfo:[self userInfoForSection:section]]))
       {
-        [self createObjC2MsgRefsNode:sectionNode 
-                             caption:(lastNodeCaption = @"ObjC2 Message References") 
-                            location:section->offset + imageOffset 
+        [self createObjC2MsgRefsNode:sectionNode
+                             caption:(lastNodeCaption = @"ObjC2 Message References")
+                            location:section->offset + imageOffset
                               length:section->size];
       }
     } // if (hasObjcModules == false)
-    
+
     section = [self findSectionByName:"__image_info" andSegment:"__OBJC"];
     if (section == NULL)
       section = [self findSectionByName:"__objc_imageinfo" andSegment:"__DATA"];
     if ((sectionNode = [self findNodeByUserInfo:[self userInfoForSection:section]]))
     {
-      [self createObjCImageInfoNode:sectionNode 
-                            caption:(lastNodeCaption = @"ObjC2 Image Info") 
-                           location:section->offset + imageOffset 
+      [self createObjCImageInfoNode:sectionNode
+                            caption:(lastNodeCaption = @"ObjC2 Image Info")
+                           location:section->offset + imageOffset
                              length:section->size];
     }
-    
+
     section = [self findSectionByName:"__cfstring" andSegment:NULL];
     if ((sectionNode = [self findNodeByUserInfo:[self userInfoForSection:section]]))
     {
-      [self createObjCCFStringsNode:sectionNode 
-                            caption:(lastNodeCaption = @"ObjC CFStrings") 
-                           location:section->offset + imageOffset 
+      [self createObjCCFStringsNode:sectionNode
+                            caption:(lastNodeCaption = @"ObjC CFStrings")
+                           location:section->offset + imageOffset
                              length:section->size];
     }
   }
@@ -1758,9 +1750,9 @@ struct CompareSectionByName
   {
     [self printException:exception caption:lastNodeCaption];
   }
-  
-  
-  
+
+
+
   @try
   {
     [self parseObjC2ClassPointers:&objcClassPointers
@@ -1781,21 +1773,21 @@ struct CompareSectionByName
   Pointer64Vector objcSuperReferences;
   Pointer64Vector objcCategoryPointers;
   Pointer64Vector objcProtocolPointers;
-  
+
   NSString * lastNodeCaption;
   MVNode * sectionNode;
   struct section_64 const * section_64;
-  
-  @try 
+
+  @try
   {
     section_64 = [self findSection64ByName:"__class_list" andSegment:"__OBJC2"];
     if (section_64 == NULL)
       section_64 = [self findSection64ByName:"__objc_classlist" andSegment:"__DATA"];
     if ((sectionNode = [self findNodeByUserInfo:[self userInfoForSection64:section_64]]))
     {
-      [self createObjC2Pointer64ListNode:sectionNode 
-                                 caption:(lastNodeCaption = @"ObjC2 Class List") 
-                                location:section_64->offset + imageOffset 
+      [self createObjC2Pointer64ListNode:sectionNode
+                                 caption:(lastNodeCaption = @"ObjC2 Class List")
+                                location:section_64->offset + imageOffset
                                   length:section_64->size
                                 pointers:objcClassPointers];
     }
@@ -1805,21 +1797,21 @@ struct CompareSectionByName
       section_64 = [self findSection64ByName:"__objc_classrefs" andSegment:"__DATA"];
     if ((sectionNode = [self findNodeByUserInfo:[self userInfoForSection64:section_64]]))
     {
-      [self createObjC2Pointer64ListNode:sectionNode 
-                                 caption:(lastNodeCaption = @"ObjC2 References") 
-                                location:section_64->offset + imageOffset 
+      [self createObjC2Pointer64ListNode:sectionNode
+                                 caption:(lastNodeCaption = @"ObjC2 References")
+                                location:section_64->offset + imageOffset
                                   length:section_64->size
                                 pointers:objcClassReferences];
     }
-    
+
     section_64 = [self findSection64ByName:"__super_refs" andSegment:"__OBJC2"];
     if (section_64 == NULL)
       section_64 = [self findSection64ByName:"__objc_superrefs" andSegment:"__DATA"];
     if ((sectionNode = [self findNodeByUserInfo:[self userInfoForSection64:section_64]]))
     {
-      [self createObjC2Pointer64ListNode:sectionNode 
-                                 caption:(lastNodeCaption = @"ObjC2 References") 
-                                location:section_64->offset + imageOffset 
+      [self createObjC2Pointer64ListNode:sectionNode
+                                 caption:(lastNodeCaption = @"ObjC2 References")
+                                location:section_64->offset + imageOffset
                                   length:section_64->size
                                 pointers:objcSuperReferences];
     }
@@ -1829,53 +1821,53 @@ struct CompareSectionByName
       section_64 = [self findSection64ByName:"__objc_catlist" andSegment:"__DATA"];
     if ((sectionNode = [self findNodeByUserInfo:[self userInfoForSection64:section_64]]))
     {
-      [self createObjC2Pointer64ListNode:sectionNode 
+      [self createObjC2Pointer64ListNode:sectionNode
                                  caption:(lastNodeCaption = @"ObjC2 Category List")
-                                location:section_64->offset + imageOffset 
+                                location:section_64->offset + imageOffset
                                   length:section_64->size
                                 pointers:objcCategoryPointers];
     }
-    
+
     section_64 = [self findSection64ByName:"__protocol_list" andSegment:"__OBJC2"];
     if (section_64 == NULL)
       section_64 = [self findSection64ByName:"__objc_protolist" andSegment:"__DATA"];
     if ((sectionNode = [self findNodeByUserInfo:[self userInfoForSection64:section_64]]))
     {
-      [self createObjC2Pointer64ListNode:sectionNode 
+      [self createObjC2Pointer64ListNode:sectionNode
                                  caption:(lastNodeCaption = @"ObjC2 Pointer List")
-                                location:section_64->offset + imageOffset 
+                                location:section_64->offset + imageOffset
                                   length:section_64->size
                                 pointers:objcProtocolPointers];
     }
-    
+
     section_64 = [self findSection64ByName:"__message_refs" andSegment:"__OBJC2"];
     if (section_64 == NULL)
       section_64 = [self findSection64ByName:"__objc_msgrefs" andSegment:"__DATA"];
     if ((sectionNode = [self findNodeByUserInfo:[self userInfoForSection64:section_64]]))
     {
-      [self createObjC2MsgRefs64Node:sectionNode 
-                             caption:(lastNodeCaption = @"ObjC2 Message References") 
-                            location:section_64->offset + imageOffset 
+      [self createObjC2MsgRefs64Node:sectionNode
+                             caption:(lastNodeCaption = @"ObjC2 Message References")
+                            location:section_64->offset + imageOffset
                               length:section_64->size];
     }
-    
+
     section_64 = [self findSection64ByName:"__image_info" andSegment:"__OBJC"];
     if (section_64 == NULL)
       section_64 = [self findSection64ByName:"__objc_imageinfo" andSegment:"__DATA"];
     if ((sectionNode = [self findNodeByUserInfo:[self userInfoForSection64:section_64]]))
     {
-      [self createObjCImageInfoNode:sectionNode 
-                            caption:(lastNodeCaption = @"ObjC2 Image Info") 
-                           location:section_64->offset + imageOffset 
+      [self createObjCImageInfoNode:sectionNode
+                            caption:(lastNodeCaption = @"ObjC2 Image Info")
+                           location:section_64->offset + imageOffset
                              length:section_64->size];
     }
-    
+
     section_64 = [self findSection64ByName:"__cfstring" andSegment:NULL];
     if ((sectionNode = [self findNodeByUserInfo:[self userInfoForSection64:section_64]]))
     {
-      [self createObjCCFStrings64Node:sectionNode 
-                              caption:(lastNodeCaption = @"ObjC CFStrings") 
-                             location:section_64->offset + imageOffset 
+      [self createObjCCFStrings64Node:sectionNode
+                              caption:(lastNodeCaption = @"ObjC CFStrings")
+                             location:section_64->offset + imageOffset
                                length:section_64->size];
     }
   }
@@ -1884,7 +1876,7 @@ struct CompareSectionByName
     [self printException:exception caption:lastNodeCaption];
   }
 
-  
+
   @try
   {
     [self parseObjC2Class64Pointers:&objcClassPointers
@@ -1895,14 +1887,14 @@ struct CompareSectionByName
   {
     [self printException:exception caption:lastNodeCaption];
   }
-  
+
 }
 
 //-----------------------------------------------------------------------------
 - (void)processCodeSections
 {
   NSString * lastNodeCaption;
-  
+
   for (SectionVector::const_iterator sectIter = ++sections.begin(); sectIter != sections.end(); ++sectIter)
   {
     struct section const * section = *sectIter;
@@ -1911,14 +1903,14 @@ struct CompareSectionByName
     {
       continue;
     }
-    
-    @try 
+
+    @try
     {
       if ((section->flags & S_ATTR_PURE_INSTRUCTIONS) && (section->flags & SECTION_TYPE) != S_SYMBOL_STUBS)
       {
-        [self createTextNode:sectionNode 
-                     caption:(lastNodeCaption = @"Assembly") 
-                    location:section->offset + imageOffset 
+        [self createTextNode:sectionNode
+                     caption:(lastNodeCaption = @"Assembly")
+                    location:section->offset + imageOffset
                       length:section->size
                       reloff:section->reloff + imageOffset
                       nreloc:section->nreloc];
@@ -1935,7 +1927,7 @@ struct CompareSectionByName
 - (void)processCodeSections64
 {
   NSString * lastNodeCaption;
-  
+
   for (Section64Vector::const_iterator sectIter = ++sections_64.begin(); sectIter != sections_64.end(); ++sectIter)
   {
     struct section_64 const * section_64 = *sectIter;
@@ -1944,14 +1936,14 @@ struct CompareSectionByName
     {
       continue;
     }
-    
-    @try 
+
+    @try
     {
       if ((section_64->flags & S_ATTR_PURE_INSTRUCTIONS) && (section_64->flags & SECTION_TYPE) != S_SYMBOL_STUBS)
       {
-        [self createTextNode:sectionNode 
-                     caption:(lastNodeCaption = @"Assembly") 
-                    location:section_64->offset + imageOffset 
+        [self createTextNode:sectionNode
+                     caption:(lastNodeCaption = @"Assembly")
+                    location:section_64->offset + imageOffset
                       length:section_64->size
                       reloff:section_64->reloff + imageOffset
                       nreloc:section_64->nreloc];
@@ -1973,7 +1965,7 @@ struct CompareSectionByName
   {
     return;
   }
-  
+
   NSString * lastNodeCaption;
   @try
   {
@@ -1982,7 +1974,7 @@ struct CompareSectionByName
       struct section const * section = *sectIter;
       if (section->nreloc > 0)
       {
-        [self createRelocNode:relocsNode 
+        [self createRelocNode:relocsNode
                       caption:(lastNodeCaption = [NSString stringWithFormat:@"(%s,%s)",
                                                   string(section->segname,16).c_str(),
                                                   string(section->sectname,16).c_str()])
@@ -2007,16 +1999,16 @@ struct CompareSectionByName
   {
     return;
   }
-  
+
   NSString * lastNodeCaption;
   @try
-  {  
+  {
     for (Section64Vector::const_iterator sectIter = ++sections_64.begin(); sectIter != sections_64.end(); ++sectIter)
     {
       struct section_64 const * section_64 = *sectIter;
       if (section_64->nreloc > 0)
       {
-        [self createReloc64Node:relocsNode 
+        [self createReloc64Node:relocsNode
                         caption:(lastNodeCaption = [NSString stringWithFormat:@"(%s,%s)",
                                                     string(section_64->segname,16).c_str(),
                                                     string(section_64->sectname,16).c_str()])
@@ -2039,18 +2031,18 @@ struct CompareSectionByName
                 mach_header:(struct mach_header const *)mach_header
 {
   MVNodeSaver nodeSaver;
-  MVNode * node = [parent insertChildWithDetails:caption location:location length:sizeof(struct mach_header) saver:nodeSaver]; 
-  
+  MVNode * node = [parent insertChildWithDetails:caption location:location length:sizeof(struct mach_header) saver:nodeSaver];
+
   NSRange range = NSMakeRange(location,0);
   NSString * lastReadHex;
-  
+
   [self read_uint32:range lastReadHex:&lastReadHex];
   [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
                          :lastReadHex
                          :@"Magic Number"
                          :mach_header->magic == MH_MAGIC ? @"MH_MAGIC" :
                           mach_header->magic == MH_CIGAM ? @"MH_CIGAM" : @"???"];
-  
+
   [self read_uint32:range lastReadHex:&lastReadHex];
   [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
                          :lastReadHex
@@ -2059,15 +2051,15 @@ struct CompareSectionByName
                           mach_header->cputype == CPU_TYPE_I386 ? @"CPU_TYPE_I386" :
                           mach_header->cputype == CPU_TYPE_ARM ? @"CPU_TYPE_ARM" :
                           mach_header->cputype == CPU_TYPE_POWERPC ? @"CPU_TYPE_POWERPC" : @"???"];
-  
+
   [self read_uint32:range lastReadHex:&lastReadHex];
   [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
                          :lastReadHex
                          :@"CPU SubType"
                          :@""];
-   
+
   if ((mach_header->cpusubtype & CPU_SUBTYPE_LIB64) == CPU_SUBTYPE_LIB64) [node.details appendRow:@"":@"":@"80000000":@"CPU_SUBTYPE_LIB64"];
-  
+
   if (mach_header->cputype == CPU_TYPE_ARM)
   {
     if ((mach_header->cpusubtype & ~CPU_SUBTYPE_MASK) == CPU_SUBTYPE_ARM_ALL)   [node.details appendRow:@"":@"":@"00000000":@"CPU_SUBTYPE_ARM_ALL"];
@@ -2082,9 +2074,9 @@ struct CompareSectionByName
   }
   else if (mach_header->cputype == CPU_TYPE_X86)
   {
-    if ((mach_header->cpusubtype & ~CPU_SUBTYPE_MASK) == CPU_SUBTYPE_X86_ALL) [node.details appendRow:@"":@"":@"00000003":@"CPU_SUBTYPE_X86_ALL"]; 
+    if ((mach_header->cpusubtype & ~CPU_SUBTYPE_MASK) == CPU_SUBTYPE_X86_ALL) [node.details appendRow:@"":@"":@"00000003":@"CPU_SUBTYPE_X86_ALL"];
   }
-   
+
   [self read_uint32:range lastReadHex:&lastReadHex];
   [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
                          :lastReadHex
@@ -2098,27 +2090,27 @@ struct CompareSectionByName
                           mach_header->filetype == MH_DYLINKER ? @"MH_DYLINKER" :
                           mach_header->filetype == MH_BUNDLE ? @"MH_BUNDLE" :
                           mach_header->filetype == MH_DYLIB_STUB ? @"MH_DYLIB_STUB" :
-                          mach_header->filetype == MH_DSYM ? @"MH_DSYM" : 
+                          mach_header->filetype == MH_DSYM ? @"MH_DSYM" :
                           mach_header->filetype == MH_KEXT_BUNDLE ? @"MH_KEXT_BUNDLE" : @"???"];
-  
+
   [self read_uint32:range lastReadHex:&lastReadHex];
   [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
                          :lastReadHex
                          :@"Number of Load Commands"
                          :[NSString stringWithFormat:@"%u", mach_header->ncmds]];
-  
+
   [self read_uint32:range lastReadHex:&lastReadHex];
   [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
                          :lastReadHex
                          :@"Size of Load Commands"
                          :[NSString stringWithFormat:@"%u", mach_header->sizeofcmds]];
-  
+
   [self read_uint32:range lastReadHex:&lastReadHex];
   [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
                          :lastReadHex
                          :@"Flags"
                          :@""];
-  
+
   if (mach_header->flags & MH_NOUNDEFS)                [node.details appendRow:@"":@"":@"00000001":@"MH_NOUNDEFS"];
   if (mach_header->flags & MH_INCRLINK)                [node.details appendRow:@"":@"":@"00000002":@"MH_INCRLINK"];
   if (mach_header->flags & MH_DYLDLINK)                [node.details appendRow:@"":@"":@"00000004":@"MH_DYLDLINK"];
@@ -2144,7 +2136,7 @@ struct CompareSectionByName
   if (mach_header->flags & MH_DEAD_STRIPPABLE_DYLIB)   [node.details appendRow:@"":@"":@"00400000":@"MH_DEAD_STRIPPABLE_DYLIB"];
   if (mach_header->flags & MH_HAS_TLV_DESCRIPTORS)     [node.details appendRow:@"":@"":@"00800000":@"MH_HAS_TLV_DESCRIPTORS"];
   if (mach_header->flags & MH_NO_HEAP_EXECUTION)       [node.details appendRow:@"":@"":@"01000000":@"MH_NO_HEAP_EXECUTION"];
-  
+
   return node;
 }
 //-----------------------------------------------------------------------------
@@ -2155,18 +2147,18 @@ struct CompareSectionByName
                mach_header_64:(struct mach_header_64 const *)mach_header_64
 {
   MVNodeSaver nodeSaver;
-  MVNode * node = [parent insertChildWithDetails:caption location:location length:sizeof(struct mach_header_64) saver:nodeSaver]; 
-  
+  MVNode * node = [parent insertChildWithDetails:caption location:location length:sizeof(struct mach_header_64) saver:nodeSaver];
+
   NSRange range = NSMakeRange(location,0);
   NSString * lastReadHex;
-  
+
   [self read_uint32:range lastReadHex:&lastReadHex];
   [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
                          :lastReadHex
                          :@"Magic Number"
                          :mach_header_64->magic == MH_MAGIC_64 ? @"MH_MAGIC_64" :
                           mach_header_64->magic == MH_CIGAM_64 ? @"MH_CIGAM_64" : @"???"];
-  
+
   [self read_uint32:range lastReadHex:&lastReadHex];
   [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
                          :lastReadHex
@@ -2174,7 +2166,7 @@ struct CompareSectionByName
                          :mach_header_64->cputype == CPU_TYPE_ANY ? @"CPU_TYPE_ANY" :
                           mach_header_64->cputype == CPU_TYPE_POWERPC64 ? @"CPU_TYPE_POWERPC64" :
                           mach_header_64->cputype == CPU_TYPE_X86_64 ? @"CPU_TYPE_X86_64" : @"???"];
-  
+
   [self read_uint32:range lastReadHex:&lastReadHex];
   [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
                          :lastReadHex
@@ -2185,9 +2177,9 @@ struct CompareSectionByName
 
   if (mach_header_64->cputype == CPU_TYPE_X86_64)
   {
-    if ((mach_header_64->cpusubtype & ~CPU_SUBTYPE_MASK) == CPU_SUBTYPE_X86_64_ALL) [node.details appendRow:@"":@"":@"00000003":@"CPU_SUBTYPE_X86_64_ALL"]; 
+    if ((mach_header_64->cpusubtype & ~CPU_SUBTYPE_MASK) == CPU_SUBTYPE_X86_64_ALL) [node.details appendRow:@"":@"":@"00000003":@"CPU_SUBTYPE_X86_64_ALL"];
   }
-  
+
   [self read_uint32:range lastReadHex:&lastReadHex];
   [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
                          :lastReadHex
@@ -2201,27 +2193,27 @@ struct CompareSectionByName
                           mach_header_64->filetype == MH_DYLINKER ? @"MH_DYLINKER" :
                           mach_header_64->filetype == MH_BUNDLE ? @"MH_BUNDLE" :
                           mach_header_64->filetype == MH_DYLIB_STUB ? @"MH_DYLIB_STUB" :
-                          mach_header_64->filetype == MH_DSYM ? @"MH_DSYM" : 
+                          mach_header_64->filetype == MH_DSYM ? @"MH_DSYM" :
                           mach_header_64->filetype == MH_KEXT_BUNDLE ? @"MH_KEXT_BUNDLE" : @"???"];
-  
+
   [self read_uint32:range lastReadHex:&lastReadHex];
   [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
                          :lastReadHex
                          :@"Number of Load Commands"
                          :[NSString stringWithFormat:@"%u", mach_header_64->ncmds]];
-  
+
   [self read_uint32:range lastReadHex:&lastReadHex];
   [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
                          :lastReadHex
                          :@"Size of Load Commands"
                          :[NSString stringWithFormat:@"%u", mach_header_64->sizeofcmds]];
-  
+
   [self read_uint32:range lastReadHex:&lastReadHex];
   [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
                          :lastReadHex
                          :@"Flags"
                          :@""];
-  
+
   if (mach_header_64->flags & MH_NOUNDEFS)               [node.details appendRow:@"":@"":@"00000001":@"MH_NOUNDEFS"];
   if (mach_header_64->flags & MH_INCRLINK)               [node.details appendRow:@"":@"":@"00000002":@"MH_INCRLINK"];
   if (mach_header_64->flags & MH_DYLDLINK)               [node.details appendRow:@"":@"":@"00000004":@"MH_DYLDLINK"];
@@ -2246,8 +2238,8 @@ struct CompareSectionByName
   if (mach_header_64->flags & MH_PIE)                    [node.details appendRow:@"":@"":@"00200000":@"MH_PIE"];
   if (mach_header_64->flags & MH_DEAD_STRIPPABLE_DYLIB)  [node.details appendRow:@"":@"":@"00400000":@"MH_DEAD_STRIPPABLE_DYLIB"];
   if (mach_header_64->flags & MH_HAS_TLV_DESCRIPTORS)    [node.details appendRow:@"":@"":@"00800000":@"MH_HAS_TLV_DESCRIPTORS"];
-  if (mach_header_64->flags & MH_NO_HEAP_EXECUTION)      [node.details appendRow:@"":@"":@"01000000":@"MH_NO_HEAP_EXECUTION"];                                  
-  
+  if (mach_header_64->flags & MH_NO_HEAP_EXECUTION)      [node.details appendRow:@"":@"":@"01000000":@"MH_NO_HEAP_EXECUTION"];
+
   uint32_t reserved = [self read_uint32:range lastReadHex:&lastReadHex];
   [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
                          :lastReadHex
@@ -2261,16 +2253,16 @@ struct CompareSectionByName
 {
   uint32_t      ncmds;        // number of load commands
   uint32_t      sizeofcmds;   // the size of all the load commands
-  
+
   // zero section (used to indicate absolute section relocations)
-  sections.push_back(NULL); 
-  sections_64.push_back(NULL); 
-  
+  sections.push_back(NULL);
+  sections_64.push_back(NULL);
+
   // zero dylib (self)
   dylibs.push_back((struct dylib *)NULL);
-  
+
   NSString * lastNodeCaption; // for error message
-  
+
   // ============== Mach Header ===========
   if ([self is64bit] == NO)
   {
@@ -2308,26 +2300,26 @@ struct CompareSectionByName
       [self printException:exception caption:lastNodeCaption];
     }
   }
-  
-  
+
+
   //=========== Load Commands =============
   {
-    uint32_t fileOffset = imageOffset + ([self is64bit] == NO 
-                                         ? sizeof(struct mach_header) 
+    uint32_t fileOffset = imageOffset + ([self is64bit] == NO
+                                         ? sizeof(struct mach_header)
                                          : sizeof(struct mach_header_64));
-    
-    MVNode * commandsNode = [self createDataNode:rootNode 
+
+    MVNode * commandsNode = [self createDataNode:rootNode
                                          caption:@"Load Commands"
                                         location:fileOffset
                                           length:sizeofcmds];
-    
+
     for (uint32_t ncmd = 0; ncmd < ncmds; ++ncmd)
     {
       MATCH_STRUCT(load_command,fileOffset)
-      
+
       // store the command for post-processing
       commands.push_back(load_command);
-      
+
       @try
       {
         [self createLoadCommandNode:commandsNode
@@ -2340,15 +2332,15 @@ struct CompareSectionByName
       {
         [self printException:exception caption:lastNodeCaption];
       }
-      
+
       fileOffset += load_command->cmdsize;
     }
   }
-  
-  
+
+
   //=========================== Sections =========================
   NSRange relocsRange = NSMakeRange(0,0);
-  
+
   if ([self is64bit] == NO)
   {
     for (SectionVector::const_iterator sectIter = ++sections.begin(); sectIter != sections.end(); ++sectIter)
@@ -2358,17 +2350,17 @@ struct CompareSectionByName
       {
         continue;
       }
-      
-      MVNode * sectionNode = [self createDataNode:rootNode 
-                                          caption:[NSString stringWithFormat:@"Section (%s,%s)", 
+
+      MVNode * sectionNode = [self createDataNode:rootNode
+                                          caption:[NSString stringWithFormat:@"Section (%s,%s)",
                                                    string(section->segname,16).c_str(),
                                                    string(section->sectname,16).c_str()]
                                          location:section->offset + imageOffset
                                            length:(section->flags & SECTION_TYPE) == S_ZEROFILL ||
                                                   (section->flags & SECTION_TYPE) == S_GB_ZEROFILL ? 0 : section->size];
-      
+
       [sectionNode.userInfo addEntriesFromDictionary:[self userInfoForSection:section]];
-      
+
       NSRange range = NSMakeRange(section->reloff + imageOffset, section->nreloc * sizeof(struct relocation_info));
       if (range.length > 0)
       {
@@ -2385,17 +2377,17 @@ struct CompareSectionByName
       {
         continue;
       }
-      
-      MVNode * sectionNode = [self createDataNode:rootNode 
-                                          caption:[NSString stringWithFormat:@"Section64 (%s,%s)", 
+
+      MVNode * sectionNode = [self createDataNode:rootNode
+                                          caption:[NSString stringWithFormat:@"Section64 (%s,%s)",
                                                    string(section_64->segname,16).c_str(),
                                                    string(section_64->sectname,16).c_str()]
                                          location:section_64->offset + imageOffset
                                            length:(section_64->flags & SECTION_TYPE) == S_ZEROFILL ||
                                                   (section_64->flags & SECTION_TYPE) == S_GB_ZEROFILL ? 0 : section_64->size];
-      
+
       [sectionNode.userInfo addEntriesFromDictionary:[self userInfoForSection64:section_64]];
-      
+
       NSRange range = NSMakeRange(section_64->reloff + imageOffset, section_64->nreloc * sizeof(struct relocation_info));
       if (range.length > 0)
       {
@@ -2403,8 +2395,8 @@ struct CompareSectionByName
       }
     }
   }
-  
-  
+
+
   //======================== Relocations ============================
   if (NSMaxRange(relocsRange) > 0)
   {
@@ -2412,12 +2404,12 @@ struct CompareSectionByName
                                        caption:@"Relocations"
                                       location:relocsRange.location
                                         length:relocsRange.length];
-    
+
     [relocsNode.userInfo addEntriesFromDictionary:[self userInfoForRelocs]];
   }
- 
+
   //======================== determine SDK ============================
-  @try 
+  @try
   {
     [self determineRuntimeVersion];
   }
@@ -2425,7 +2417,7 @@ struct CompareSectionByName
   {
     [self printException:exception caption:rootNode.caption];
   }
-  
+
   [super doMainTasks];
 }
 
@@ -2438,10 +2430,10 @@ struct CompareSectionByName
     NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
     if ([self is64bit] == NO) [self processLinkEdit]; else [self processLinkEdit64];
     [pool drain];
-    NSLog(@"%@: LinkEdit finished parsing. (%lu symbols found)", self, 
+    NSLog(@"%@: LinkEdit finished parsing. (%lu symbols found)", self,
     [self is64bit] == NO ? symbols.size() : symbols_64.size());
   }];
-  
+
   NSBlockOperation * sectionRelocsOperation = [NSBlockOperation blockOperationWithBlock:^
   {
     if ([backgroundThread isCancelled]) return;
@@ -2450,7 +2442,7 @@ struct CompareSectionByName
     [pool drain];
     NSLog(@"%@: Section relocations finished parsing.", self);
   }];
-  
+
   NSBlockOperation * dyldInfoOperation = [NSBlockOperation blockOperationWithBlock:^
   {
     if ([backgroundThread isCancelled]) return;
@@ -2459,7 +2451,7 @@ struct CompareSectionByName
     [pool drain];
     NSLog(@"%@: Dyld info finished parsing.", self);
   }];
-  
+
   NSBlockOperation * sectionOperation = [NSBlockOperation blockOperationWithBlock:^
   {
     if ([backgroundThread isCancelled]) return;
@@ -2468,7 +2460,7 @@ struct CompareSectionByName
     [pool drain];
     NSLog(@"%@: Section contents finished parsing.", self);
   }];
-  
+
   NSBlockOperation * EHFramesOperation = [NSBlockOperation blockOperationWithBlock:^
   {
     if ([backgroundThread isCancelled]) return;
@@ -2477,7 +2469,7 @@ struct CompareSectionByName
     [pool drain];
     NSLog(@"%@: Exception Frames finished parsing.", self);
   }];
-  
+
   NSBlockOperation * LSDAsOperation = [NSBlockOperation blockOperationWithBlock:^
   {
     if ([backgroundThread isCancelled]) return;
@@ -2486,7 +2478,7 @@ struct CompareSectionByName
     [pool drain];
     NSLog(@"%@: Lang Spec Data Areas finished parsing. (%lu LSDAs found)", self, lsdaInfo.size());
   }];
-  
+
   NSBlockOperation * objcSectionOperation = [NSBlockOperation blockOperationWithBlock:^
   {
     if ([backgroundThread isCancelled]) return;
@@ -2495,7 +2487,7 @@ struct CompareSectionByName
     [pool drain];
     NSLog(@"%@: ObjC Section contents finished parsing.", self);
   }];
-  
+
   NSBlockOperation * codeSectionsOperation = [NSBlockOperation blockOperationWithBlock:^
   {
     if ([backgroundThread isCancelled]) return;
@@ -2504,7 +2496,7 @@ struct CompareSectionByName
     [pool drain];
     NSLog(@"%@: Code sections finished parsing.", self);
   }];
-  
+
   // setup dependencies
   [sectionOperation       addDependency:linkEditOperation];
   [sectionRelocsOperation addDependency:sectionOperation];
@@ -2513,16 +2505,16 @@ struct CompareSectionByName
   [codeSectionsOperation  addDependency:dyldInfoOperation];
   [EHFramesOperation      addDependency:dyldInfoOperation];
   [LSDAsOperation         addDependency:EHFramesOperation];
-    
+
   // setup priorities
   [codeSectionsOperation  setQueuePriority:NSOperationQueuePriorityVeryLow];
   [codeSectionsOperation  setThreadPriority:0.0]; // this one will take the longest
-  
+
   // start operations
   NSOperationQueue * oq = [[NSOperationQueue alloc] init];
 
   [dataController updateStatus:MVStatusTaskStarted];
-  
+
   [oq   addOperations:[NSArray arrayWithObjects:linkEditOperation,
                                                 sectionOperation,
                                                 sectionRelocsOperation,
@@ -2530,11 +2522,11 @@ struct CompareSectionByName
                                                 EHFramesOperation,
                                                 LSDAsOperation,
                                                 objcSectionOperation,
-                                                codeSectionsOperation,nil] 
+                                                codeSectionsOperation,nil]
     waitUntilFinished:YES];
-  
+
   [super doBackgroundTasks];
-  
+
   [dataController updateStatus:MVStatusTaskTerminated];
 }
 
