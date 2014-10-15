@@ -33,19 +33,27 @@
 #ifndef _DISASM_H_
 #define _DISASM_H_
 
-#include <mach/machine.h>
+#include <mach/machine.h> /* for cpu_subtype_t */
 #ifndef bool
 # include <stdbool.h>
 #endif /* !bool */
-#include <stdint.h>
+#include <stdint.h> /* for uint64_t */
+#include <mach-o/nlist.h> /* for 'struct nlist' and 'struct nlist_64' */
+#include <mach-o/loader.h> /* for 'struct load_command' */
+#include <mach-o/reloc.h> /* for 'struct relocation_info' */
 
+#ifndef _ENUM_BYTESEX_DEFINED
+# define _ENUM_BYTESEX_DEFINED 1
 enum byte_sex
 {
   UNKNOWN_BYTE_SEX,
   BIG_ENDIAN_BYTE_SEX,
   LITTLE_ENDIAN_BYTE_SEX
 };
+#endif /* !_ENUM_BYTESEX_DEFINED */
 
+#ifndef _STRUCT_SYMBOL_DEFINED
+# define _STRUCT_SYMBOL_DEFINED 1
 struct symbol
 {
   char *name;
@@ -53,6 +61,7 @@ struct symbol
   uint64_t n_value;
   int is_thumb;
 };
+#endif /* !_STRUCT_SYMBOL_DEFINED */
 
 #ifdef __cplusplus
 # ifndef EXTERN_C
@@ -67,12 +76,28 @@ EXTERN_C int sym_compare(struct symbol *sym1, struct symbol *sym2);
 EXTERN_C int rel_compare(struct relocation_info *rel1,
                          struct relocation_info *rel2);
 
+#if !defined(verbose) && !defined(_VERBOSE_DECLARED) && 0
+# define _VERBOSE_DECLARED 1
 const bool verbose = true;
+#endif /* !verbose && !_VERBOSE_DECLARED && 0 */
 
 EXTERN_C const char * guess_symbol(const uint64_t value,
                                    const struct symbol *sorted_symbols,
                                    const uint32_t nsorted_symbols,
                                    const bool verbose);
+
+const char * guess_indirect_symbol(const uint64_t value, /* the value of this symbol (in) */
+                      const uint32_t ncmds,
+                      const uint32_t sizeofcmds,
+                      const struct load_command *load_commands,
+                      const enum byte_sex load_commands_byte_sex,
+                      const uint32_t *indirect_symbols,
+                      const uint32_t nindirect_symbols,
+                      const struct nlist *symbols,
+                      const struct nlist_64 *symbols64,
+                      const uint32_t nsymbols,
+                      const char *strings,
+                      const uint32_t strings_size);
 
 EXTERN_C uint32_t i386_disassemble(char *sect, uint32_t left,
                                    uint64_t addr, uint64_t sect_addr,
@@ -92,7 +117,21 @@ EXTERN_C uint32_t i386_disassemble(char *sect, uint32_t left,
                                    uint32_t ncmds, uint32_t sizeofcmds,
                                    bool verbose, bool llvm_mc);
 
-extern bool in_thumb;
+/* try to prevent types from conflicting: */
+#ifdef _ARM_DISASM_H
+# ifndef ENUM_BOOL
+#  define ENUM_BOOL enum bool
+# endif /* !ENUM_BOOL */
+#else
+# ifndef ENUM_BOOL
+#  define ENUM_BOOL bool
+# endif /* !ENUM_BOOL */
+#endif /* _ARM_DISASM_H */
+
+#ifndef _ENUM_BOOL_IN_THUMB_DEFINED
+# define _ENUM_BOOL_IN_THUMB_DEFINED 1
+extern ENUM_BOOL in_thumb;
+#endif /* !_ENUM_BOOL_IN_THUMB_DEFINED */
 
 EXTERN_C uint32_t arm_disassemble(char *sect, uint32_t left, uint32_t addr,
                                   uint32_t sect_addr,

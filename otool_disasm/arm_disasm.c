@@ -27,6 +27,7 @@
 #include "stuff/arch.h"
 #include "stuff/bool.h"
 #include <stdio.h>
+#include <mach/machine.h>
 #include <mach-o/loader.h>
 #include <mach-o/nlist.h>
 #include <mach-o/reloc.h>
@@ -36,8 +37,10 @@
 #include "stuff/symbol.h"
 #include "stuff/llvm.h"
 #include "otool.h"
+#include "dyld_bind_info.h"
 #include "ofile_print.h"
 #include "arm_disasm.h"
+#include "cxa_demangle.h"
 
 #ifdef HACKED_LLVM_DISASSEMBLER_INTERFACE
 /*
@@ -57,8 +60,11 @@ RelocExprInfoFunc getRelocExprInfo,
 const char *arch_name);
 #endif /* HACKED_LLVM_DISASSEMBLER_INTERFACE */
 
+#ifndef _ENUM_BOOL_IN_THUMB_DEFINED
+# define _ENUM_BOOL_IN_THUMB_DEFINED 1
 /* Used by otool(1) to stay or switch out of thumb mode */
 enum bool in_thumb = FALSE;
+#endif /* !_ENUM_BOOL_IN_THUMB_DEFINED */
 
 static void set_thumb_mode(
 	uint32_t addr,
@@ -172,6 +178,13 @@ struct disassemble_info { /* HACK'ed up for just what we need here */
   LLVMDisasmContextRef thumb_dc;
   char *object_addr;
   uint32_t object_size;
+  /* "otool.h" will define this macro for us if it is available: */
+#ifdef STRUCT_INST
+  struct inst *inst;
+  struct inst *insts;
+#endif /* STRUCT_INST */
+  uint32_t ninsts;
+  char *demangled_name;
 } dis_info;
 
 /*
@@ -217,7 +230,7 @@ void *TagBuf)
 
 	op_info = (struct LLVMOpInfo1 *)TagBuf;
 	value = op_info->Value;
-	/* make sure all feilds returned are zero if we don't set them */
+	/* make sure all fields returned are zero if we don't set them */
 	memset(op_info, '\0', sizeof(struct LLVMOpInfo1));
 	op_info->Value = value;
 
@@ -418,6 +431,9 @@ void *TagBuf)
 	    return(1);
 	}
 
+        if(reloc_found == FALSE)
+            return(0);
+
 	op_info->AddSymbol.Present = 1;
 	op_info->Value = offset;
 	if(reloc_found){
@@ -483,23 +499,23 @@ const uint32_t object_size)
 	swapped = host_byte_sex != load_commands_byte_sex;
 
 	lc = load_commands;
-	big_load_end = 0;
-	for(i = 0 ; i < ncmds; i++){
+	big_load_end = 0UL;
+	for(i = 0U ; i < ncmds; i++){
 	    memcpy((char *)&l, (char *)lc, sizeof(struct load_command));
-	    if(swapped)
+	    if (swapped)
 		swap_load_command(&l, host_byte_sex);
-	    if(l.cmdsize % sizeof(int32_t) != 0)
+	    if ((l.cmdsize % sizeof(int32_t)) != 0U)
 		return(NULL);
 	    big_load_end += l.cmdsize;
-	    if(big_load_end > sizeofcmds)
+	    if (big_load_end > sizeofcmds)
 		return(NULL);
-	    switch(l.cmd){
+	    switch (l.cmd) {
 	    case LC_SEGMENT:
 		memcpy((char *)&sg, (char *)lc, sizeof(struct segment_command));
 		if(swapped)
 		    swap_segment_command(&sg, host_byte_sex);
 		p = (char *)lc + sizeof(struct segment_command);
-		for(j = 0 ; j < sg.nsects ; j++){
+		for (j = 0U; j < sg.nsects ; j++){
 		    memcpy((char *)&s, p, sizeof(struct section));
 		    p += sizeof(struct section);
 		    if(swapped)
@@ -519,7 +535,7 @@ const uint32_t object_size)
 		}
 		break;
 	    }
-	    if(l.cmdsize == 0){
+	    if (l.cmdsize == 0U) {
 		return(NULL);
 	    }
 	    lc = (struct load_command *)((char *)lc + l.cmdsize);
@@ -576,8 +592,7 @@ struct disassemble_info *info)
 		r_length = srp->r_length;
 		r_type = srp->r_type;
 		r_value = srp->r_value;
-	    }
-	    else{
+	    } else {
 		r_scattered = 0;
 		r_address = rp->r_address;
 		r_symbolnum = rp->r_symbolnum;
@@ -585,7 +600,7 @@ struct disassemble_info *info)
 		r_length = rp->r_length;
 		r_type = rp->r_type;
 	    }
-	    if(r_type == ARM_RELOC_PAIR){
+	    if (r_type == ARM_RELOC_PAIR) {
 		fprintf(stderr, "Stray ARM_RELOC_PAIR relocation entry "
 			"%u\n", i);
 		continue;
@@ -603,8 +618,7 @@ struct disassemble_info *info)
 			    other_half = spairp->r_address & 0xffff;
 			    pair_r_type = spairp->r_type;
 			    pair_r_value = spairp->r_value;
-			}
-			else{
+			} else {
 			    other_half = pairp->r_address & 0xffff;
 			    pair_r_type = pairp->r_type;
 			}
@@ -837,8 +851,7 @@ const char **ReferenceName)
 						   ReferenceType, info);
 	    if(*ReferenceName == NULL)
 		*ReferenceType = LLVMDisassembler_ReferenceType_InOut_None;
-	}
-	else{
+	} else {
 	    *ReferenceName = NULL;
 	    *ReferenceType = LLVMDisassembler_ReferenceType_InOut_None;
 	}
@@ -847,17 +860,64 @@ const char **ReferenceName)
 
 LLVMDisasmContextRef
 create_arm_llvm_disassembler(
-void)
+cpu_subtype_t cpusubtype)
 {
     LLVMDisasmContextRef dc;
+
+    const char *TripleName;
+    const char *mcpu_default;
+
+    mcpu_default = mcpu;
+    switch (cpusubtype) {
+	case CPU_SUBTYPE_ARM_V4T:
+	    TripleName = "armv4t-apple-darwin10";
+	    break;
+	case CPU_SUBTYPE_ARM_V5TEJ:
+	    TripleName = "armv5-apple-darwin10";
+	    break;
+	case CPU_SUBTYPE_ARM_XSCALE:
+	    TripleName = "xscale-apple-darwin10";
+	    break;
+	case CPU_SUBTYPE_ARM_V6:
+	    TripleName = "armv6-apple-darwin10";
+	    break;
+	case CPU_SUBTYPE_ARM_V6M:
+	    TripleName = "armv6m-apple-darwin10";
+	    if(*mcpu_default == '\0')
+		mcpu_default = "cortex-m0";
+	    break;
+	default:
+	case CPU_SUBTYPE_ARM_V7:
+	    TripleName = "armv7-apple-darwin10";
+	    break;
+	case CPU_SUBTYPE_ARM_V7F:
+	    TripleName = "armv7f-apple-darwin10";
+	    break;
+	case CPU_SUBTYPE_ARM_V7S:
+	    TripleName = "armv7s-apple-darwin10";
+	    break;
+	case CPU_SUBTYPE_ARM_V7K:
+	    TripleName = "armv7k-apple-darwin10";
+	    break;
+	case CPU_SUBTYPE_ARM_V7M:
+	    TripleName = "armv7m-apple-darwin10";
+	    if(*mcpu_default == '\0')
+		mcpu_default = "cortex-m3";
+	    break;
+	case CPU_SUBTYPE_ARM_V7EM:
+	    TripleName = "armv7em-apple-darwin10";
+	    if(*mcpu_default == '\0')
+		mcpu_default = "cortex-m4";
+	    break;
+    }
 
 	dc =
 #ifdef STATIC_LLVM
 	    LLVMCreateDisasm
 #else
 	    llvm_create_disasm
-#endif
-		("armv7-apple-darwin10", &dis_info, 1, GetOpInfo, SymbolLookUp);
+#endif /* STATIC_LLVM */
+		(TripleName, mcpu_default, &dis_info, 1, GetOpInfo, SymbolLookUp);
 	return(dc);
 }
 
@@ -869,24 +929,70 @@ LLVMDisasmContextRef dc)
 	LLVMDisasmDispose
 #else
 	llvm_disasm_dispose
-#endif
+#endif /* STATIC_LLVM */
 	    (dc);
 }
 
 LLVMDisasmContextRef
 create_thumb_llvm_disassembler(
-void)
+cpu_subtype_t cpusubtype)
 {
     LLVMDisasmContextRef dc;
+    const char *TripleName;
+    const char *mcpu_default;
+
+    mcpu_default = mcpu;
+    switch (cpusubtype) {
+	case CPU_SUBTYPE_ARM_V4T:
+	    TripleName = "thumbv4t-apple-darwin10";
+	    break;
+	case CPU_SUBTYPE_ARM_V5TEJ:
+	    TripleName = "thumbv5-apple-darwin10";
+	    break;
+	case CPU_SUBTYPE_ARM_XSCALE:
+	    TripleName = "xscale-apple-darwin10";
+	    break;
+	case CPU_SUBTYPE_ARM_V6:
+	    TripleName = "thumbv6-apple-darwin10";
+	    break;
+	case CPU_SUBTYPE_ARM_V6M:
+	    TripleName = "thumbv6m-apple-darwin10";
+	    if (*mcpu_default == '\0')
+		mcpu_default = "cortex-m0";
+	    break;
+	default:
+	case CPU_SUBTYPE_ARM_V7:
+	    TripleName = "thumbv7-apple-darwin10";
+	    break;
+	case CPU_SUBTYPE_ARM_V7F:
+	    TripleName = "thumbv7f-apple-darwin10";
+	    break;
+	case CPU_SUBTYPE_ARM_V7S:
+	    TripleName = "thumbv7s-apple-darwin10";
+	    break;
+	case CPU_SUBTYPE_ARM_V7K:
+	    TripleName = "thumbv7k-apple-darwin10";
+	    break;
+	case CPU_SUBTYPE_ARM_V7M:
+	    TripleName = "thumbv7m-apple-darwin10";
+	    if(*mcpu_default == '\0')
+		mcpu_default = "cortex-m3";
+	    break;
+	case CPU_SUBTYPE_ARM_V7EM:
+	    TripleName = "thumbv7em-apple-darwin10";
+	    if(*mcpu_default == '\0')
+		mcpu_default = "cortex-m4";
+	    break;
+    }
 
 	dc =
 #ifdef STATIC_LLVM
 	    LLVMCreateDisasm
 #else
 	    llvm_create_disasm
-#endif
-		("thumbv7-apple-darwin10", &dis_info, 1, GetOpInfo,
-		 SymbolLookUp);
+#endif /* STATIC_LLVM */
+		(TripleName, mcpu_default, &dis_info, 1, GetOpInfo,
+                 SymbolLookUp);
 	return(dc);
 }
 
@@ -898,7 +1004,7 @@ LLVMDisasmContextRef dc)
 	LLVMDisasmDispose
 #else
 	llvm_disasm_dispose
-#endif
+#endif /* STATIC_LLVM */
 	    (dc);
 }
 
@@ -4798,7 +4904,7 @@ print_insn (bfd_vma pc, struct disassemble_info *info, bfd_boolean little)
   int           is_data = FALSE;
   unsigned int	size = 4;
   void	 	(*printer) (bfd_vma, struct disassemble_info *, int32_t);
-  char		*llvm_arch_name;
+  const char	*llvm_arch_name;
   LLVMDisasmContextRef dc;
 
 #ifdef NOTDEF
@@ -5124,7 +5230,7 @@ bfd_vma pc,
 bfd_vma addr,
 struct disassemble_info *info)
 {
-    int32_t i;
+    uint32_t i;
     const char *name;
     void *stream = info->stream;
     struct relocation_info *relocs = info->relocs;
@@ -5133,13 +5239,13 @@ struct disassemble_info *info)
     uint32_t nsymbols = info->nsymbols;
     char *strings = info->strings;
     uint32_t strings_size = info->strings_size;
-    bfd_vma r_address = pc - info->sect_addr;
+    bfd_vma r_address = (pc - info->sect_addr);
 
     if(info->verbose){
-	/* If there's a relocation at this address, include the referenced
-	   symbol.  */
-	for(i = 0; i < nrelocs; i++){
-	    if(relocs[i].r_address == r_address && relocs[i].r_extern){
+	/* If there is a relocation at this address, then include
+         * the referenced symbol.  */
+	for(i = 0U; i < nrelocs; i++){
+	    if ((relocs[i].r_address == r_address) && relocs[i].r_extern){
  		unsigned int r_symbolnum = relocs[i].r_symbolnum;
 		if(r_symbolnum < nsymbols){
 		    uint32_t n_strx = symbols[r_symbolnum].n_un.n_strx;
@@ -5557,10 +5663,10 @@ symbol_at_address_func(
 bfd_vma addr,
 struct disassemble_info * info)
 {
-/*
+#ifdef DEBUG
 	printf("Unexpected call to stubbed out symbol_at_address_func() "
 	       " addr = 0x%x\n", addr);
-*/
+#endif /* DEBUG */
 	return(0);
 }
 
@@ -5633,7 +5739,16 @@ enum bool verbose,
 LLVMDisasmContextRef arm_dc,
 LLVMDisasmContextRef thumb_dc,
 char *object_addr,
-uint32_t object_size)
+uint32_t object_size,
+struct data_in_code_entry *dices,
+uint32_t ndices,
+uint64_t seg_addr,
+/* "otool.h" will define this macro for us if it is available: */
+#ifdef STRUCT_INST
+struct inst *inst,
+struct inst *insts,
+#endif /* STRUCT_INST */
+uint32_t ninsts)
 {
     uint32_t bytes_consumed, pool_value;
 
@@ -5716,10 +5831,10 @@ enum bool *in_thumb)
     int32_t high, low, mid;
 
         low = 0;
-        high = nsorted_symbols - 1;
-        mid = (high - low) / 2;
-        while(high >= low){
-            if(sorted_symbols[mid].n_value == addr){
+        high = (nsorted_symbols - 1U);
+        mid = ((high - low) / 2);
+        while (high >= low){
+            if (sorted_symbols[mid].n_value == addr) {
 		/* Find the first symbol at this address */
 		while(mid && sorted_symbols[mid-1].n_value == addr){
 		    mid--;
@@ -5738,11 +5853,11 @@ enum bool *in_thumb)
 		} while (1);
             }
             if (sorted_symbols[mid].n_value > addr) {
-                high = mid - 1;
-                mid = (high + low) / 2;
+                high = (mid - 1);
+                mid = ((high + low) / 2);
             } else {
-                low = mid + 1;
-                mid = (high + low) / 2;
+                low = (mid + 1);
+                mid = ((high + low) / 2);
             }
         }
 }

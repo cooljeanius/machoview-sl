@@ -1,20 +1,20 @@
-/*
+/* otool.h
  * Copyright © 2009 Apple Inc. All rights reserved.
  *
  * @APPLE_LICENSE_HEADER_START@
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1.  Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the following disclaimer. 
+ * this list of conditions and the following disclaimer.
  * 2.  Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution. 
+ * and/or other materials provided with the distribution.
  * 3.  Neither the name of Apple Inc. ("Apple") nor the names of its
  * contributors may be used to endorse or promote products derived from this
- * software without specific prior written permission. 
- * 
+ * software without specific prior written permission.
+ *
  * THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -28,7 +28,16 @@
  *
  * @APPLE_LICENSE_HEADER_END@
  */
-#import <stuff/bool.h>
+
+#ifndef _OTOOL_H
+#define _OTOOL_H 1
+
+#if (defined(__GNUC__) || defined(__OBJC__) || defined(__APPLE__)) && !defined(__STRICT_ANSI__)
+# import <stuff/bool.h>
+#else
+# include <stuff/bool.h>
+#endif /* (__GNUC__ || __OBJC__ || __APPLE__) && !__STRICT_ANSI__ */
+#include "llvm-c/Disassembler.h"
 
 /* Name of this program for error messages (argv[0]) */
 extern char *progname;
@@ -58,13 +67,34 @@ extern enum bool Zflag; /* don't use simplified ppc mnemonics in disassembly */
 extern enum bool Bflag; /* force Thumb disassembly (ARM objects only) */
 extern enum bool Qflag; /* use the HACKED llvm-mc disassembler */
 extern enum bool qflag; /* use 'C' Public llvm-mc disassembler */
+extern enum bool gflag; /* group the disassembly */
 extern enum bool jflag; /* print opcode bytes */
 extern char *pflag; 	/* procedure name to start disassembling from */
 extern char *segname,
      *sectname;	    /* name of the section to print the contents of */
+extern char *mcpu; 	/* the arg of the -mcpu=arg flag */
+/* Print function offsets when disassembling when TRUE. */
+extern enum bool function_offsets;
 
 uint32_t m68k_usrstack(void);
 uint32_t m88k_usrstack(void);
 uint32_t i386_usrstack(void);
 uint32_t hppa_usrstack(void);
 uint32_t sparc_usrstack(void);
+
+#ifndef STRUCT_INST
+# define STRUCT_INST 1
+struct inst {
+    uint64_t address;
+    char *label;
+    enum bool needs_tmp_label;
+    char *tmp_label;
+    enum bool print;
+    enum bool has_raw_target_address;
+    uint64_t raw_target_address;
+};
+#endif /* !STRUCT_INST */
+
+#endif /* !_OTOOL_H */
+
+/* EOF */

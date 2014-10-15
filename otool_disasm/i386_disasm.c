@@ -1,20 +1,20 @@
-/*
+/* i386_disasm.c
  * Copyright © 2009 Apple Inc. All rights reserved.
  *
  * @APPLE_LICENSE_HEADER_START@
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1.  Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the following disclaimer. 
+ * this list of conditions and the following disclaimer.
  * 2.  Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution. 
+ * and/or other materials provided with the distribution.
  * 3.  Neither the name of Apple Inc. ("Apple") nor the names of its
  * contributors may be used to endorse or promote products derived from this
- * software without specific prior written permission. 
- * 
+ * software without specific prior written permission.
+ *
  * THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -1554,7 +1554,7 @@ static const struct instable distable[16][16] = {
 static const char *get_reg_name(int reg, int wbit, int data16, int rex)
 {
 	const char *reg_name;
-	
+
 	// A REX prefix takes precedent over a 66h prefix.
 	if (rex != 0) {
 		reg_name = REG32[reg + (REX_R(rex) << 3)][wbit + REX_W(rex)];
@@ -1563,14 +1563,14 @@ static const char *get_reg_name(int reg, int wbit, int data16, int rex)
 	} else {
 		reg_name = REG32[reg][wbit];
 	}
-	
+
 	return reg_name;
 }
 
 static const char *get_r_m_name(int r_m, int wbit, int data16, int rex)
 {
 	const char *reg_name;
-	
+
 	// A REX prefix takes precedent over a 66h prefix.
 	if (rex != 0) {
 		reg_name = REG32[r_m + (REX_B(rex) << 3)][wbit + REX_W(rex)];
@@ -1579,7 +1579,7 @@ static const char *get_r_m_name(int r_m, int wbit, int data16, int rex)
 	} else {
 		reg_name = REG32[r_m][wbit];
 	}
-	
+
 	return reg_name;
 }
 
@@ -1687,8 +1687,8 @@ enum bool llvm_mc)
 	 * This may be more general than the chip actually is.
 	 */
 	prefix_dp = NULL;
-	prefix_byte = 0;
-	for(;;){
+	prefix_byte = byte; /* i.e. 0 */
+	for (;;) {
 	    byte = get_value(sizeof(char), sect, &length, &left);
 	    opcode1 = byte >> 4 & 0xf;
 	    opcode2 = byte & 0xf;
@@ -1914,7 +1914,7 @@ enum bool llvm_mc)
 	    printf(".byte 0x%02x #bad opcode\n", (unsigned int)byte);
 	    return(length);
 	}
-	
+
 	/*
 	 * Some addressing modes are implicitly 64-bit.  Set REX.W for those
 	 * so we don't have to change the logic for them later.
@@ -2273,7 +2273,7 @@ enum bool llvm_mc)
 	    GET_OPERAND(&symadd0, &symsub0, &value0, &value0_size, result0);
 	    byte = get_value(sizeof(char), sect, &length, &left);
 		printf("%s\t$0x%x,", mnemonic, byte);
-		
+
 	    print_operand(seg, symadd0, symsub0, value0, value0_size,
 			  result0, ",");
 	    printf("%s\n", result1);
@@ -3303,7 +3303,7 @@ enum bool llvm_mc)
 	    case 2:
 		vbit = 1;
 		/* fall thru */
-	    case 0: 
+	    case 0:
 		if(llvm_mc == TRUE){
 		    if((cputype & CPU_ARCH_ABI64) == CPU_ARCH_ABI64)
 		        reg_name = LLVM_MC_64_CONTROLREG[reg+(REX_R(rex) << 3)];
@@ -3813,7 +3813,7 @@ const enum bool verbose)
 		     * also 4 then the operand is just a displacement.
 		     */
 		    if(mode == 0 && base == 5 && index == 4){
-			result = "";
+			result = (char *)"";
 		    }
 		    else{
 			sprintf(result, "(%s%s)", regname64[mode][base +
@@ -3846,7 +3846,7 @@ const enum bool verbose)
 		     * displacement.
 		     */
 		    if(mode == 0 && base == 5 && index == 4){
-			result = "";
+			result = (char *)"";
 		    }
 		    else{
 			sprintf(result, "(%s%s)", regname32[mode][base],

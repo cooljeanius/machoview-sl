@@ -1,20 +1,20 @@
-/*
+/* ofile_print.h
  * Copyright © 2009 Apple Inc. All rights reserved.
  *
  * @APPLE_LICENSE_HEADER_START@
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1.  Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the following disclaimer. 
+ * this list of conditions and the following disclaimer.
  * 2.  Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution. 
+ * and/or other materials provided with the distribution.
  * 3.  Neither the name of Apple Inc. ("Apple") nor the names of its
  * contributors may be used to endorse or promote products derived from this
- * software without specific prior written permission. 
- * 
+ * software without specific prior written permission.
+ *
  * THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -28,6 +28,10 @@
  *
  * @APPLE_LICENSE_HEADER_END@
  */
+
+#ifndef _OFILE_PRINT_H
+#define _OFILE_PRINT_H
+
 #import <ar.h>
 #import <mach-o/fat.h>
 #import <mach-o/loader.h>
@@ -310,7 +314,7 @@ extern void print_dyld_info_info_command(
     uint32_t object_size);
 
 extern void print_thread_states(
-    char *begin, 
+    char *begin,
     char *end,
     cpu_type_t cputype,
     enum byte_sex thread_states_byte_sex);
@@ -560,3 +564,5 @@ extern enum bool get_sect_info(
     struct relocation_info **sect_relocs,
     uint32_t *sect_nrelocs,
     uint32_t *sect_flags);
+
+#endif /* !_OFILE_PRINT_H */

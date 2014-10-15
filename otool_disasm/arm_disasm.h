@@ -1,20 +1,20 @@
-/*
+/* arm_disasm.h
  * Copyright © 2009 Apple Inc. All rights reserved.
  *
  * @APPLE_LICENSE_HEADER_START@
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1.  Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the following disclaimer. 
+ * this list of conditions and the following disclaimer.
  * 2.  Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution. 
+ * and/or other materials provided with the distribution.
  * 3.  Neither the name of Apple Inc. ("Apple") nor the names of its
  * contributors may be used to endorse or promote products derived from this
- * software without specific prior written permission. 
- * 
+ * software without specific prior written permission.
+ *
  * THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -28,6 +28,10 @@
  *
  * @APPLE_LICENSE_HEADER_END@
  */
+
+#ifndef _ARM_DISASM_H
+#define _ARM_DISASM_H 1
+
 #import <stuff/bytesex.h>
 #import <mach-o/reloc.h>
 #import <mach-o/nlist.h>
@@ -35,8 +39,11 @@
 #include "stuff/symbol.h"
 #include "llvm-c/Disassembler.h"
 
-/* Used by otool(1) to stay or switch out of thumb mode */
+/* Used by otool(1) to stay or switch out of thumb mode: */
+#ifndef _ENUM_BOOL_IN_THUMB_DEFINED
+# define _ENUM_BOOL_IN_THUMB_DEFINED 1
 extern enum bool in_thumb;
+#endif /* !_ENUM_BOOL_IN_THUMB_DEFINED */
 
 extern uint32_t arm_disassemble(
     char *sect,
@@ -62,9 +69,24 @@ extern uint32_t arm_disassemble(
     LLVMDisasmContextRef arm_dc,
     LLVMDisasmContextRef thumb_dc,
     char *object_addr,
-    uint32_t object_size);
+    uint32_t object_size,
+    struct data_in_code_entry *dices,
+    uint32_t ndices,
+    uint64_t seg_addr,
+    /* "otool.h" will define this macro for us if it is available: */
+#ifdef STRUCT_INST
+    struct inst *inst,
+    struct inst *insts,
+#endif /* STRUCT_INST */
+    uint32_t ninsts);
 
-extern LLVMDisasmContextRef create_arm_llvm_disassembler(void);
-extern LLVMDisasmContextRef create_thumb_llvm_disassembler(void);
+extern LLVMDisasmContextRef create_arm_llvm_disassembler(
+    cpu_subtype_t cpusubtype);
+extern LLVMDisasmContextRef create_thumb_llvm_disassembler(
+    cpu_subtype_t cpusubtype);
 extern void delete_arm_llvm_disassembler(LLVMDisasmContextRef dc);
 extern void delete_thumb_llvm_disassembler(LLVMDisasmContextRef dc);
+
+#endif /* !_ARM_DISASM_H */
+
+/* EOF */

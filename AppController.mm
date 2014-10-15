@@ -16,10 +16,10 @@
 int64_t nrow_total;  // number of rows (loaded and empty)
 int64_t nrow_loaded; // number of loaded rows
 
-//============================================================================
+//=========================================================================
 @implementation MVAppController
 
-//----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 - (BOOL)applicationShouldOpenUntitledFile:(NSApplication *)sender
 {
   return NO;

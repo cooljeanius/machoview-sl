@@ -1,20 +1,20 @@
-/*
+/* symbol.c
  * Copyright © 2009 Apple Inc. All rights reserved.
  *
  * @APPLE_LICENSE_HEADER_START@
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1.  Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the following disclaimer. 
+ * this list of conditions and the following disclaimer.
  * 2.  Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution. 
+ * and/or other materials provided with the distribution.
  * 3.  Neither the name of Apple Inc. ("Apple") nor the names of its
  * contributors may be used to endorse or promote products derived from this
- * software without specific prior written permission. 
- * 
+ * software without specific prior written permission.
+ *
  * THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -64,7 +64,7 @@ rel_compare(
 {
   struct scattered_relocation_info *srel;
   uint32_t r_address1, r_address2;
-  
+
 	if((rel1->r_address & R_SCATTERED) != 0){
     srel = (struct scattered_relocation_info *)rel1;
     r_address1 = srel->r_address;
@@ -77,7 +77,7 @@ rel_compare(
 	}
 	else
     r_address2 = rel2->r_address;
-  
+
 	if(r_address1 == r_address2)
     return(0);
 	if(r_address1 < r_address2)
@@ -100,13 +100,13 @@ guess_symbol(
              const enum bool verbose)
 {
   int32_t high, low, mid;
-  
+
 	if(verbose == FALSE)
     return(NULL);
-  
+
 	low = 0;
-	high = nsorted_symbols - 1;
-	mid = (high - low) / 2;
+	high = (nsorted_symbols - 1);
+	mid = ((high - low) / 2);
 	while(high >= low){
     if(sorted_symbols[mid].n_value == value){
       return(sorted_symbols[mid].name);
@@ -154,10 +154,10 @@ guess_indirect_symbol(
   struct section_64 s64;
   char *p;
   uint64_t big_load_end;
-  
+
 	host_byte_sex = get_host_byte_sex();
 	swapped = host_byte_sex != load_commands_byte_sex;
-  
+
 	lc = load_commands;
 	big_load_end = 0;
 	for(i = 0 ; i < ncmds; i++){
